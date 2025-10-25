@@ -77,5 +77,8 @@ public class ControlInterfaz implements ActionListener {
         if(e.getSource() == this.vPrincipal.getPanelMain().getPanelInicio().getBotonJugar()){
             this.vPrincipal.getPanelMain().mostrarPanelCargar();
         }
+        if(e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonJugar()){
+            
+        }
     }
 }
