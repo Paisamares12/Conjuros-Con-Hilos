@@ -10,9 +10,14 @@ import java.util.List;
  * para organizar las rondas.
  * </p>
  *
+ * <p>
+ * Originalmente creada por Paula Martínez.<br>
+ * Modificada por Juan Sebastián Bravo Rojas
+ * </p>
+ * 
  * @author Paula
- * @version 1.0
- * @since 2025-10-25
+ * @version 2.0
+ * @since 2025-10-26
  */
 public class ListadoMagos {
 
@@ -21,17 +26,25 @@ public class ListadoMagos {
 
     /** @return lista de magos registrados */
     public List<Mago> getMagos() {
-        return magos;
+        return List.copyOf(magos);
     }
+
 
     /** @param magos nueva lista de magos */
     public void setMagos(List<Mago> magos) {
+        if (magos == null) {
+            throw new IllegalArgumentException("La lista de magos no puede ser nula.");
+        }
         this.magos = magos;
     }
+
 
     /** @return texto descriptivo del listado de magos */
     @Override
     public String toString() {
-        return "ListadoMagos{" + "magos=" + magos + '}';
+        StringBuilder sb = new StringBuilder("Listado de Magos:\n");
+        magos.forEach(m -> sb.append("- ").append(m).append("\n"));
+        return sb.toString();
     }
+
 }

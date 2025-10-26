@@ -10,9 +10,14 @@ import java.util.List;
  * corresponde al motor del juego.
  * </p>
  *
+ * <p>
+ * Originalmente creada por Paula Martínez.<br>
+ * Modificada por Juan Sebastián Bravo Rojas
+ * </p>
+ * 
  * @author Paula
- * @version 1.1
- * @since 2025-10-25
+ * @version 2.0
+ * @since 2025-10-26
  */
 public class LibroHechizos {
 
@@ -25,21 +30,29 @@ public class LibroHechizos {
      * @return lista completa de hechizos
      */
     public List<Hechizo> getHechizos() {
-        return hechizos;
+        return List.copyOf(hechizos);
     }
+
 
     /**
      * @param hechizos lista de hechizos a asignar
      */
     public void setHechizos(List<Hechizo> hechizos) {
+        if (hechizos == null) {
+            throw new IllegalArgumentException("La lista de hechizos no puede ser nula.");
+        }
         this.hechizos = hechizos;
     }
+
 
     /**
      * @return texto descriptivo del libro de hechizos
      */
     @Override
     public String toString() {
-        return "LibroHechizos{" + "hechizos=" + hechizos + '}';
+        StringBuilder sb = new StringBuilder("Libro de Hechizos:\n");
+        hechizos.forEach(h -> sb.append("- ").append(h).append("\n"));
+        return sb.toString();
     }
+
 }

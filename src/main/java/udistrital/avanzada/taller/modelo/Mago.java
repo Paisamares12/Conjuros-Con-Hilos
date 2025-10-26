@@ -7,9 +7,14 @@ package udistrital.avanzada.taller.modelo;
  * quedar aturdido temporalmente según las reglas de combate.
  * </p>
  *
+ * <p>
+ * Originalmente creada por Paula Martínez.<br>
+ * Modificada por Juan Sebastián Bravo Rojas
+ * </p>
+ * 
  * @author Paula
- * @version 1.0
- * @since 2025-10-25
+ * @version 2.0
+ * @since 2025-10-26
  */
 public class Mago {
 
@@ -124,8 +129,12 @@ public class Mago {
      * @param puntosAcumulados nuevos puntos del mago
      */
     public void setPuntosAcumulados(int puntosAcumulados) {
+        if (puntosAcumulados < 0) {
+            throw new IllegalArgumentException("Los puntos acumulados no pueden ser negativos.");
+        }
         this.puntosAcumulados = puntosAcumulados;
     }
+
 
     /**
      * Devuelve la cantidad total de hechizos lanzados por el mago.
@@ -160,8 +169,12 @@ public class Mago {
      * @param nombre nuevo nombre del mago
      */
     public void setNombre(String nombre) {
-        this.nombre = nombre;
+        if (nombre == null || nombre.isBlank()) {
+            throw new IllegalArgumentException("El nombre del mago no puede estar vacío.");
+        }
+        this.nombre = nombre.trim();
     }
+
 
     /**
      * Devuelve la casa a la que pertenece el mago.
@@ -178,7 +191,10 @@ public class Mago {
      * @param casa nueva casa del mago
      */
     public void setCasa(String casa) {
-        this.casa = casa;
+        if (casa == null || casa.isBlank()) {
+            throw new IllegalArgumentException("La casa del mago no puede estar vacía.");
+        }
+        this.casa = casa.trim();
     }
 
     /**
@@ -210,6 +226,7 @@ public class Mago {
      */
     @Override
     public String toString() {
-        return nombre + " (" + casa + ") - " + puntosAcumulados + " pts";
+        return nombre + " (" + casa + ") - " + puntosAcumulados + " pts, " + hechizosLanzados + " hechizos";
     }
+
 }

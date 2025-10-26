@@ -5,30 +5,39 @@ package udistrital.avanzada.taller.modelo;
  * duelo. Cada hechizo tiene un nombre y una cantidad de puntos que aporta al
  * mago que lo utiliza.
  *
+ * <p>
+ * Originalmente creada por Paula Martínez.<br>
+ * Modificada por Juan Sebastián Bravo Rojas
+ * </p>
+ * 
  * @author Paula
- * @version 1.0
- * @since 2025-10-25
+ * @version 2.0
+ * @since 2025-10-26
  */
 public class Hechizo {
 
     /**
      * Nombre del hechizo.
      */
-    private String nombre;
+    private final String nombre;
 
     /**
      * Puntos que aporta el hechizo (entre 5 y 25).
      */
-    private int puntos;
+    private final int puntos;
 
     /**
      * Crea un nuevo hechizo con el nombre y puntos indicados.
      *
      * @param nombre nombre del hechizo
      * @param puntos cantidad de puntos que otorga
+     * @throws IllegalArgumentException si los puntos están fuera del rango permitido
      */
     public Hechizo(String nombre, int puntos) {
         this.nombre = nombre;
+        if (puntos < 5 || puntos > 25) {
+            throw new IllegalArgumentException("Los puntos del hechizo deben estar entre 5 y 25.");
+        }
         this.puntos = puntos;
     }
 
@@ -42,30 +51,12 @@ public class Hechizo {
     }
 
     /**
-     * Establece un nuevo nombre para el hechizo.
-     *
-     * @param nombre nuevo nombre del hechizo
-     */
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
-    /**
      * Devuelve los puntos que otorga este hechizo.
      *
      * @return cantidad de puntos del hechizo
      */
     public int getPuntos() {
         return puntos;
-    }
-
-    /**
-     * Establece la cantidad de puntos que otorga el hechizo.
-     *
-     * @param puntos nuevos puntos del hechizo (debe estar entre 5 y 25)
-     */
-    public void setPuntos(int puntos) {
-        this.puntos = puntos;
     }
 
     /**

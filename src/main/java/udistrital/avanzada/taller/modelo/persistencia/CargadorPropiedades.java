@@ -1,69 +1,88 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package udistrital.avanzada.taller.modelo.persistencia;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import udistrital.avanzada.taller.modelo.Hechizo;
 import udistrital.avanzada.taller.modelo.LibroHechizos;
 import udistrital.avanzada.taller.modelo.ListadoMagos;
 import udistrital.avanzada.taller.modelo.Mago;
 
 /**
+ * Gestiona la carga de archivos de propiedades (.properties) para magos y
+ * hechizos desde el sistema de archivos o el classpath.
+ * <p>
+ * A diferencia de versiones anteriores, no usa rutas quemadas: los archivos se
+ * seleccionan dinámicamente mediante un cuadro de diálogo.
+ * </p>
  *
- * @author paisa
+ * <p>
+ * Originalmente creada por Paula Martínez.<br>
+ * Modificada por Juan Sebastián Bravo Rojas
+ * </p>
+ * 
+ * @author Paula
+ * @version 2,0
+ * @since 2025-10-26
  */
 public class CargadorPropiedades {
 
-    /**
-     * Ruta relativa al archivo de propiedades de hechizos
-     */
-    private static final String RUTA_ARCHIVO_HECHIZOS = "src/data/hechizos.properties";
-    /**
-     * Ruta relativa al archivo de propiedades de magos
-     */
-    private static final String RUTA_ARCHIVO_MAGOS = "src/data/magos.properties";
-
-    /**
-     * Claves comunes.
-     */
+    /** Clave usada para indicar la cantidad de elementos en el archivo. */
     private static final String KEY_COUNT = "count";
 
+    //TODO: Creo que tenemos que dejar el filechooser en el paquete de vista
     /**
-     * Carga los magos desde un archivo en disco o desde el classpath.
-     * <p>
-     * Si {@code rutaSistemaArchivos} es {@code null} o no existe, intentará
-     * cargar {@link #RECURSO_MAGOS} desde el classpath.
-     * </p>
+     * Permite al usuario seleccionar un archivo .properties desde el sistema.
      *
-     * @param rutaSistemaArchivos ruta en el sistema de archivos (puede ser
-     * null)
-     * @return un {@link ListadoMagos} con los magos cargados (puede venir
-     * vacío)
-     * @throws IOException si no se encuentra el archivo ni como ruta ni como
-     * recurso, o si hay errores de lectura/parsing de propiedades críticas
+     * @param descripcion texto descriptivo del tipo de archivo
+     * @return ruta absoluta del archivo seleccionado o {@code null} si se cancela
+     */
+    private String seleccionarArchivo(String descripcion) {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Seleccionar archivo de " + descripcion);
+        chooser.setFileFilter(new FileNameExtensionFilter("Archivos de propiedades (*.properties)", "properties"));
+
+        int resultado = chooser.showOpenDialog(null);
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+            return archivo.getAbsolutePath();
+        }
+        return null;
+    }
+
+    /**
+     * Carga los magos desde un archivo de propiedades seleccionado por el usuario
+     * o desde una ruta proporcionada.
+     *
+     * @param rutaSistemaArchivos ruta opcional del archivo de magos (si es {@code null},
+     *                            se abrirá un JFileChooser)
+     * @return listado de magos cargado
+     * @throws IOException si ocurre un error durante la lectura
      */
     public ListadoMagos cargarMagos(String rutaSistemaArchivos) throws IOException {
-        Properties props = cargarDesdeRutaOClasspath(rutaSistemaArchivos, RUTA_ARCHIVO_MAGOS);
+        if (rutaSistemaArchivos == null) {
+            rutaSistemaArchivos = seleccionarArchivo("magos");
+        }
+        if (rutaSistemaArchivos == null) {
+            throw new IOException("No se seleccionó ningún archivo de magos.");
+        }
 
+        Properties props = cargarDesdeRutaOClasspath(rutaSistemaArchivos);
         int cantidad = leerEnteroObligatorio(props, KEY_COUNT, "magos.properties: count");
-        List<Mago> magos = new ArrayList<>(cantidad);
 
+        List<Mago> magos = new ArrayList<>(cantidad);
         for (int i = 1; i <= cantidad; i++) {
             String base = "mago." + i + ".";
             String nombre = leerTextoObligatorio(props, base + "nombre", "mago." + i + ".nombre");
             String casa = leerTextoObligatorio(props, base + "casa", "mago." + i + ".casa");
 
-            Mago mago = new Mago();
-            mago.setNombre(nombre);
-            mago.setCasa(casa);
-
+            Mago mago = new Mago(nombre, casa);
             magos.add(mago);
         }
 
@@ -73,37 +92,36 @@ public class CargadorPropiedades {
     }
 
     /**
-     * Carga los hechizos desde un archivo en disco o desde el classpath.
-     * <p>
-     * Si {@code rutaSistemaArchivos} es {@code null} o no existe, intentará
-     * cargar {@link #RECURSO_HECHIZOS} desde el classpath.
-     * </p>
+     * Carga los hechizos desde un archivo de propiedades seleccionado por el usuario
+     * o desde una ruta proporcionada.
      *
-     * @param rutaSistemaArchivos ruta en el sistema de archivos (puede ser
-     * null)
-     * @return un {@link LibroHechizos} con los hechizos cargados (puede venir
-     * vacío)
-     * @throws IOException si no se encuentra el archivo ni como ruta ni como
-     * recurso, o si hay errores de lectura/parsing de propiedades críticas
+     * @param rutaSistemaArchivos ruta opcional del archivo de hechizos (si es {@code null},
+     *                            se abrirá un JFileChooser)
+     * @return libro de hechizos cargado
+     * @throws IOException si ocurre un error durante la lectura
      */
     public LibroHechizos cargarHechizos(String rutaSistemaArchivos) throws IOException {
-        Properties props = cargarDesdeRutaOClasspath(rutaSistemaArchivos, RUTA_ARCHIVO_HECHIZOS);
+        if (rutaSistemaArchivos == null) {
+            rutaSistemaArchivos = seleccionarArchivo("hechizos");
+        }
+        if (rutaSistemaArchivos == null) {
+            throw new IOException("No se seleccionó ningún archivo de hechizos.");
+        }
 
+        Properties props = cargarDesdeRutaOClasspath(rutaSistemaArchivos);
         int cantidad = leerEnteroObligatorio(props, KEY_COUNT, "hechizos.properties: count");
-        List<Hechizo> hechizos = new ArrayList<>(cantidad);
 
+        List<Hechizo> hechizos = new ArrayList<>(cantidad);
         for (int i = 1; i <= cantidad; i++) {
             String base = "hechizo." + i + ".";
             String nombre = leerTextoObligatorio(props, base + "nombre", "hechizo." + i + ".nombre");
             int puntos = leerEnteroObligatorio(props, base + "puntos", "hechizo." + i + ".puntos");
 
-            // Validación básica de rango (persistencia mínima, no lógica de negocio compleja)
             if (puntos < 1) {
                 throw new IOException("Valor inválido en " + base + "puntos: " + puntos + ". Debe ser >= 1.");
             }
 
-            Hechizo h = new Hechizo(nombre, puntos);
-            hechizos.add(h);
+            hechizos.add(new Hechizo(nombre, puntos));
         }
 
         LibroHechizos libro = new LibroHechizos();
@@ -114,51 +132,17 @@ public class CargadorPropiedades {
     // =========================
     //   Utilidades de lectura
     // =========================
-    /**
-     * Intenta cargar un {@link Properties} desde una ruta de sistema de
-     * archivos. Si falla o la ruta es {@code null}, intenta cargarlo desde el
-     * classpath usando {@code recursoClasspath}.
-     *
-     * @param rutaSistemaArchivos ruta de archivo (puede ser null)
-     * @param recursoClasspath recurso en classpath (por ejemplo
-     * "/propiedades/magos.properties")
-     * @return instancia de {@link Properties} cargada
-     * @throws IOException si no se encuentra el archivo en ninguna ubicación
-     */
-    private Properties cargarDesdeRutaOClasspath(String rutaSistemaArchivos, String recursoClasspath) throws IOException {
+    private Properties cargarDesdeRutaOClasspath(String rutaSistemaArchivos) throws IOException {
         Properties props = new Properties();
 
-        // 1) Intentar como archivo en disco
-        if (rutaSistemaArchivos != null && !rutaSistemaArchivos.isBlank()) {
-            try (FileInputStream fis = new FileInputStream(rutaSistemaArchivos)) {
-                props.load(fis);
-                return props;
-            } catch (IOException ignore) {
-                // Continuar con classpath
-            }
+        try (InputStream is = new FileInputStream(rutaSistemaArchivos)) {
+            props.load(is);
+            return props;
+        } catch (IOException e) {
+            throw new IOException("No se pudo cargar el archivo: " + rutaSistemaArchivos, e);
         }
-
-        // 2) Intentar como recurso en classpath
-        try (InputStream is = getClass().getResourceAsStream(recursoClasspath)) {
-            if (is != null) {
-                props.load(is);
-                return props;
-            }
-        }
-
-        throw new IOException("No se encontró el archivo de propiedades. Ruta: "
-                + rutaSistemaArchivos + "  |  Recurso: " + recursoClasspath);
     }
 
-    /**
-     * Lee una propiedad textual obligatoria.
-     *
-     * @param props properties
-     * @param key clave a leer
-     * @param etiqueta nombre legible para mensajes de error
-     * @return valor de la propiedad (no vacío)
-     * @throws IOException si la clave no existe o está vacía
-     */
     private String leerTextoObligatorio(Properties props, String key, String etiqueta) throws IOException {
         String v = props.getProperty(key);
         if (v == null || v.isBlank()) {
@@ -167,15 +151,6 @@ public class CargadorPropiedades {
         return v.trim();
     }
 
-    /**
-     * Lee una propiedad entera obligatoria.
-     *
-     * @param props properties
-     * @param key clave a leer
-     * @param etiqueta nombre legible para mensajes de error
-     * @return valor entero
-     * @throws IOException si la clave no existe, está vacía o no es un número
-     */
     private int leerEnteroObligatorio(Properties props, String key, String etiqueta) throws IOException {
         String v = props.getProperty(key);
         if (v == null || v.isBlank()) {
@@ -191,28 +166,15 @@ public class CargadorPropiedades {
     // =========================
     //   Validaciones simples
     // =========================
-    /**
-     * Valida si un mago tiene datos mínimos completos.
-     *
-     * @param mago mago a verificar
-     * @return {@code true} si faltan datos, {@code false} si está completo
-     */
     public boolean tieneDatosIncompletos(Mago mago) {
         return mago == null
                 || mago.getNombre() == null || mago.getNombre().isBlank()
                 || mago.getCasa() == null || mago.getCasa().isBlank();
     }
 
-    /**
-     * Valida si un hechizo tiene datos mínimos completos.
-     *
-     * @param hechizo hechizo a verificar
-     * @return {@code true} si faltan datos, {@code false} si está completo
-     */
     public boolean tieneDatosIncompletos(Hechizo hechizo) {
         return hechizo == null
                 || hechizo.getNombre() == null || hechizo.getNombre().isBlank()
                 || hechizo.getPuntos() <= 0;
     }
-
 }
