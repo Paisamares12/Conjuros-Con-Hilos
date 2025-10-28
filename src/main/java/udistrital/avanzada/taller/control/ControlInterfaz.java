@@ -26,17 +26,21 @@ import udistrital.avanzada.taller.vista.VentanaPrincipal;
  * Originalmente creada por Paula Martínez.<br>
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
- * 
- * @author Paula
+ *
+ * @author Paula Martínez
  * @version 2.0
  * @since 2025-10-26
  */
 public class ControlInterfaz implements ActionListener {
 
-    /** Controlador de la capa lógica del sistema. */
+    /**
+     * Controlador de la capa lógica del sistema.
+     */
     private final ControlLogica cLogica;
 
-    /** Ventana principal de la aplicación. */
+    /**
+     * Ventana principal de la aplicación.
+     */
     private VentanaPrincipal vPrincipal;
 
     /**
@@ -68,6 +72,8 @@ public class ControlInterfaz implements ActionListener {
         this.vPrincipal.getPanelMain().getPanelInicio().getBotonSalir().addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonSalir().addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonJugar().addActionListener(this);
+        this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarMagos().addActionListener(this);
+        this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarHechizos().addActionListener(this);
     }
 
     /**
@@ -83,17 +89,34 @@ public class ControlInterfaz implements ActionListener {
             this.vPrincipal.dispose();
             System.exit(0);
         }
-
+        if (e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonSalir()
+                || e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonSalir()) {
+            this.vPrincipal.dispose();
+            System.exit(0);
+        }
         // ---- BOTÓN "JUGAR" EN PANEL INICIO ----
         if (e.getSource() == this.vPrincipal.getPanelMain().getPanelInicio().getBotonJugar()) {
             this.vPrincipal.getPanelMain().mostrarPanelCargar();
             return;
         }
-
+        // ---- BOTONES "CARGAR" EN PANEL CARGAR ----
+        if (e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarMagos()) {
+            String ruta = this.vPrincipal.getPanelMain().getPanelCargar().cargarProperties("Magos");
+            pasarRuta(ruta);
+        }
+        if (e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarHechizos()) {
+            String ruta = this.vPrincipal.getPanelMain().getPanelCargar().cargarProperties("Hechizos");
+            pasarRuta(ruta);
+        }
         // ---- BOTÓN "JUGAR" EN PANEL CARGAR ----
         if (e.getSource() == this.vPrincipal.getPanelMain().getPanelCargar().getBotonJugar()) {
             ejecutarDuelo();
         }
+
+    }
+    
+    public String pasarRuta(String ruta){
+        return ruta;
     }
 
     /**

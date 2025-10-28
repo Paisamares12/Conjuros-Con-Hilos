@@ -24,7 +24,7 @@ import udistrital.avanzada.taller.modelo.persistencia.CargadorPropiedades;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
+ * @author Paula Martínez
  * @version 2.0
  * @since 2025-10-26
  */
@@ -104,14 +104,5 @@ public class ControlLogica {
      */
     public LibroHechizos getLibroHechizos() {
         return libro;
-    }
-
-    /**
-     * Devuelve el controlador de la interfaz asociado.
-     *
-     * @return controlador de interfaz
-     */
-    public ControlInterfaz getControlInterfaz() {
-        return cInterfaz;
     }
 }
