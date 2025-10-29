@@ -32,9 +32,6 @@ public class ListadoMagos {
 
     /** @param magos nueva lista de magos */
     public void setMagos(List<Mago> magos) {
-        if (magos == null) {
-            throw new IllegalArgumentException("La lista de magos no puede ser nula.");
-        }
         this.magos = magos;
     }
 

@@ -60,9 +60,6 @@ public class ResultadoDuelo {
         setPuntosGanador(puntosGanador);
         setPuntosPerdedor(puntosPerdedor);
         setHechizosLanzadosGanador(hechizosLanzadosGanador);
-        if (ganador == perdedor) {
-            throw new IllegalArgumentException("El mago ganador y el perdedor no pueden ser el mismo.");
-        }
     }
 
     /** @return mago ganador del duelo */
@@ -77,9 +74,6 @@ public class ResultadoDuelo {
      * @throws IllegalArgumentException si es nulo
      */
     public void setGanador(Mago ganador) {
-        if (ganador == null) {
-            throw new IllegalArgumentException("El mago ganador no puede ser nulo.");
-        }
         this.ganador = ganador;
     }
 
@@ -95,12 +89,6 @@ public class ResultadoDuelo {
      * @throws IllegalArgumentException si es nulo o igual al ganador
      */
     public void setPerdedor(Mago perdedor) {
-        if (perdedor == null) {
-            throw new IllegalArgumentException("El mago perdedor no puede ser nulo.");
-        }
-        if (ganador != null && ganador == perdedor) {
-            throw new IllegalArgumentException("El ganador y el perdedor no pueden ser el mismo mago.");
-        }
         this.perdedor = perdedor;
     }
 
@@ -116,9 +104,6 @@ public class ResultadoDuelo {
      * @throws IllegalArgumentException si el valor es negativo
      */
     public void setPuntosGanador(int puntosGanador) {
-        if (puntosGanador < 0) {
-            throw new IllegalArgumentException("Los puntos del ganador no pueden ser negativos.");
-        }
         this.puntosGanador = puntosGanador;
     }
 
@@ -134,9 +119,6 @@ public class ResultadoDuelo {
      * @throws IllegalArgumentException si el valor es negativo
      */
     public void setPuntosPerdedor(int puntosPerdedor) {
-        if (puntosPerdedor < 0) {
-            throw new IllegalArgumentException("Los puntos del perdedor no pueden ser negativos.");
-        }
         this.puntosPerdedor = puntosPerdedor;
     }
 
@@ -152,14 +134,14 @@ public class ResultadoDuelo {
      * @throws IllegalArgumentException si el valor es negativo
      */
     public void setHechizosLanzadosGanador(int hechizosLanzadosGanador) {
-        if (hechizosLanzadosGanador < 0) {
-            throw new IllegalArgumentException("La cantidad de hechizos lanzados no puede ser negativa.");
-        }
         this.hechizosLanzadosGanador = hechizosLanzadosGanador;
     }
 
+    
+    //TODO: No estoy seguro de si se pueda usar el toString
     /**
      * Devuelve una representación textual del resultado del duelo.
+     * Uso de toString
      * <p>
      * Ejemplo:
      * <pre>

@@ -129,9 +129,6 @@ public class Mago {
      * @param puntosAcumulados nuevos puntos del mago
      */
     public void setPuntosAcumulados(int puntosAcumulados) {
-        if (puntosAcumulados < 0) {
-            throw new IllegalArgumentException("Los puntos acumulados no pueden ser negativos.");
-        }
         this.puntosAcumulados = puntosAcumulados;
     }
 
@@ -169,9 +166,6 @@ public class Mago {
      * @param nombre nuevo nombre del mago
      */
     public void setNombre(String nombre) {
-        if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("El nombre del mago no puede estar vacío.");
-        }
         this.nombre = nombre.trim();
     }
 
@@ -191,9 +185,6 @@ public class Mago {
      * @param casa nueva casa del mago
      */
     public void setCasa(String casa) {
-        if (casa == null || casa.isBlank()) {
-            throw new IllegalArgumentException("La casa del mago no puede estar vacía.");
-        }
         this.casa = casa.trim();
     }
 
