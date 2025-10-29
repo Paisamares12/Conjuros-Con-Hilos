@@ -35,9 +35,6 @@ public class Hechizo {
      */
     public Hechizo(String nombre, int puntos) {
         this.nombre = nombre;
-        if (puntos < 5 || puntos > 25) {
-            throw new IllegalArgumentException("Los puntos del hechizo deben estar entre 5 y 25.");
-        }
         this.puntos = puntos;
     }
 
