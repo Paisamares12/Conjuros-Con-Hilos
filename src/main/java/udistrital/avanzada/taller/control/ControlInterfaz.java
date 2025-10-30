@@ -3,6 +3,7 @@ package udistrital.avanzada.taller.control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import udistrital.avanzada.taller.modelo.*;
 import udistrital.avanzada.taller.vista.VentanaPrincipal;
@@ -12,22 +13,23 @@ import udistrital.avanzada.taller.vista.VentanaPrincipal;
  * <p>
  * Se encarga de recibir los eventos generados por la vista, comunicarlos a la
  * capa lógica y actualizar la interfaz según los resultados del sistema.
- * 
- * Creada por Paula Martíneza
- * Modificada por Juan Ariza
+ *
+ * Creada por Paula Martínez Modificada por Juan Ariza
  * </p>
  *
  * @author Paula Martínez
- * @version 3.0
+ * @version 5.0
  * @since 2025-10-29
  */
+//TODO: Sacar todo el modelo de aca, el ControlInterfaz no se comunica directamente con el modelo
+//TODO: revisar que cumpla con el MVC y los SOLID 
 public class ControlInterfaz implements ActionListener {
 
     private final ControlLogica cLogica;
     private VentanaPrincipal vPrincipal;
     /*
     * Control para la validación de existencia de magos y hechizos
-    */
+     */
     private boolean magosReady = false;
     private boolean hechizosReady = false;
 
@@ -57,23 +59,23 @@ public class ControlInterfaz implements ActionListener {
     private void conectarEventos() {
         // Panel Inicio
         this.vPrincipal.getPanelMain().getPanelInicio().getBotonJugar()
-            .addActionListener(this);
+                .addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelInicio().getBotonSalir()
-            .addActionListener(this);
-        
+                .addActionListener(this);
+
         // Panel Cargar
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonSalir()
-            .addActionListener(this);
+                .addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonJugar()
-            .addActionListener(this);
+                .addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarMagos()
-            .addActionListener(this);
+                .addActionListener(this);
         this.vPrincipal.getPanelMain().getPanelCargar().getBotonCargarHechizos()
-            .addActionListener(this);
-        
+                .addActionListener(this);
+
         // Panel Combate
         this.vPrincipal.getPanelMain().getPanelCombate().getBotonVolver()
-            .addActionListener(this);
+                .addActionListener(this);
     }
 
     /**
@@ -85,7 +87,7 @@ public class ControlInterfaz implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         // BOTONES DE SALIDA
         if (e.getSource() == vPrincipal.getPanelMain().getPanelInicio().getBotonSalir()
-            || e.getSource() == vPrincipal.getPanelMain().getPanelCargar().getBotonSalir()) {
+                || e.getSource() == vPrincipal.getPanelMain().getPanelCargar().getBotonSalir()) {
             vPrincipal.dispose();
             System.exit(0);
             return;
@@ -105,13 +107,13 @@ public class ControlInterfaz implements ActionListener {
                 if (exito) {
                     magosReady = true;
                     JOptionPane.showMessageDialog(vPrincipal,
-                        "Magos cargados exitosamente.",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                            "Magos cargados exitosamente.",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     verificarDatosCompletos();
                 } else {
                     JOptionPane.showMessageDialog(vPrincipal,
-                        "Error al cargar el archivo de magos.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                            "Error al cargar el archivo de magos.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
             return;
@@ -124,13 +126,13 @@ public class ControlInterfaz implements ActionListener {
                 if (exito) {
                     hechizosReady = true;
                     JOptionPane.showMessageDialog(vPrincipal,
-                        "Hechizos cargados exitosamente.",
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                            "Hechizos cargados exitosamente.",
+                            "Éxito", JOptionPane.INFORMATION_MESSAGE);
                     verificarDatosCompletos();
                 } else {
                     JOptionPane.showMessageDialog(vPrincipal,
-                        "Error al cargar el archivo de hechizos.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+                            "Error al cargar el archivo de hechizos.",
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
             return;
@@ -154,8 +156,8 @@ public class ControlInterfaz implements ActionListener {
     private void verificarDatosCompletos() {
         if (magosReady && hechizosReady) {
             JOptionPane.showMessageDialog(vPrincipal,
-                "¡Todos los datos están listos! Puedes iniciar el torneo.",
-                "Listo para jugar", JOptionPane.INFORMATION_MESSAGE);
+                    "¡Todos los datos están listos! Puedes iniciar el torneo.",
+                    "Listo para jugar", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -165,15 +167,15 @@ public class ControlInterfaz implements ActionListener {
     private void ejecutarTorneo() {
         if (!cLogica.datosListos()) {
             JOptionPane.showMessageDialog(vPrincipal,
-                "Debes cargar primero los archivos de magos y hechizos.",
-                "Datos incompletos", JOptionPane.WARNING_MESSAGE);
+                    "Debes cargar primero los archivos de magos y hechizos.",
+                    "Datos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (!cLogica.puedeIniciarDuelo()) {
             JOptionPane.showMessageDialog(vPrincipal,
-                "No hay suficientes magos para iniciar un duelo.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                    "No hay suficientes magos para iniciar un duelo.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -185,80 +187,98 @@ public class ControlInterfaz implements ActionListener {
      */
     private void ejecutarSiguienteDuelo() {
         if (!cLogica.puedeIniciarDuelo()) {
-            // Fin del torneo
             GestorTorneo.EstadisticasTorneo stats = cLogica.getGestorTorneo().obtenerEstadisticas();
             Mago campeon = stats.getCampeonActual();
-            
+
             String mensaje = "🏆 ¡TORNEO FINALIZADO! 🏆\n\n"
-                + "Campeón: " + campeon.getNombre() + "\n"
-                + "Casa: " + campeon.getCasa() + "\n"
-                + "Duelos ganados: " + stats.getDuelosRealizados();
-            
+                    + "Campeón: " + campeon.getNombre() + "\n"
+                    + "Casa: " + campeon.getCasa() + "\n"
+                    + "Duelos realizados: " + stats.getDuelosRealizados();
+
             JOptionPane.showMessageDialog(vPrincipal, mensaje,
-                "Fin del Torneo", JOptionPane.INFORMATION_MESSAGE);
-            
+                    "Fin del Torneo", JOptionPane.INFORMATION_MESSAGE);
+
             vPrincipal.getPanelMain().mostrarPanelInicio();
             return;
         }
 
-        // Obtener los magos del siguiente duelo
-        Mago[] contendientes = cLogica.obtenerSiguienteDuelo();
-        
-        // Cambiar a panel de combate
         vPrincipal.getPanelMain().mostrarPanelCombate();
-        vPrincipal.getPanelMain().getPanelCombate().inicializarDuelo(
-            contendientes[0], contendientes[1]);
 
-        // Crear observador para actualizar la UI
         CampoDeDuelo.ObservadorDuelo observador = new CampoDeDuelo.ObservadorDuelo() {
             @Override
             public void onInicioDuelo(Mago mago1, Mago mago2) {
-                // Ya inicializado en inicializarDuelo()
+                // ✅ Inicializa la UI AQUÍ con los contendientes reales del duelo
+                vPrincipal.getPanelMain().getPanelCombate().inicializarDuelo(mago1, mago2);
             }
 
             @Override
             public void onHechizoLanzado(Mago mago, Hechizo hechizo, int puntosActuales) {
                 vPrincipal.getPanelMain().getPanelCombate()
-                    .actualizarMago(mago, hechizo, puntosActuales);
+                        .actualizarMago(mago, hechizo, puntosActuales);
             }
 
             @Override
             public void onMagoAturdido(Mago mago) {
-                vPrincipal.getPanelMain().getPanelCombate()
-                    .marcarAturdido(mago);
+                vPrincipal.getPanelMain().getPanelCombate().marcarAturdido(mago);
             }
 
             @Override
             public void onMagoRecupera(Mago mago) {
-                vPrincipal.getPanelMain().getPanelCombate()
-                    .marcarRecuperado(mago);
+                vPrincipal.getPanelMain().getPanelCombate().marcarRecuperado(mago);
             }
 
             @Override
             public void onFinDuelo(ResultadoDuelo resultado) {
-                vPrincipal.getPanelMain().getPanelCombate()
-                    .mostrarResultado(resultado);
+                SwingUtilities.invokeLater(() -> {
+                    // Muestra el resultado en el panel
+                    vPrincipal.getPanelMain().getPanelCombate().mostrarResultado(resultado);
+
+                    // ¿Quedan más duelos?
+                    if (cLogica.puedeIniciarDuelo()) {
+                        int opcion = JOptionPane.showConfirmDialog(
+                                vPrincipal,
+                                "¿Deseas continuar con el siguiente duelo?",
+                                "Siguiente Ronda",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE
+                        );
+                        if (opcion == JOptionPane.YES_OPTION) {
+                            ejecutarSiguienteDuelo();               // ⬅️ lanza el siguiente
+                        } else {
+                            vPrincipal.getPanelMain().mostrarPanelInicio();
+                        }
+                    } else {
+                        // Fin del torneo
+                        GestorTorneo.EstadisticasTorneo stats = cLogica.getGestorTorneo().obtenerEstadisticas();
+                        Mago campeon = stats.getCampeonActual();
+                        String mensaje = "🏆 ¡TORNEO FINALIZADO! 🏆\n\n"
+                                + "Campeón: " + campeon.getNombre() + "\n"
+                                + "Casa: " + campeon.getCasa() + "\n"
+                                + "Duelos realizados: " + stats.getDuelosRealizados();
+                        JOptionPane.showMessageDialog(vPrincipal, mensaje, "Fin del Torneo",
+                                JOptionPane.INFORMATION_MESSAGE);
+                        vPrincipal.getPanelMain().mostrarPanelInicio();
+                    }
+                });
             }
         };
 
-        // Ejecutar el duelo en un hilo separado para no bloquear la UI
+        // Ejecuta sin bloquear la UI
         SwingWorker<ResultadoDuelo, Void> worker = new SwingWorker<>() {
             @Override
             protected ResultadoDuelo doInBackground() {
-                return cLogica.iniciarDueloConObservador(
-                    contendientes[0], contendientes[1], observador);
+                return cLogica.iniciarSiguienteDueloTorneoConObservador(observador);
             }
 
             @Override
             protected void done() {
-                // El duelo ha terminado, el botón "Volver" ya está habilitado
-            }
+                /* no-op */ }
         };
 
         worker.execute();
     }
-    
-    //TODO: Es necesario sacar los mensajes String, o modificarlos en algo para los avisos
+
+    //TODO: no sé si se puede usar el JOptionPane para esto
     /**
      * Muestra opciones después de finalizar un duelo.
      */
@@ -267,24 +287,24 @@ public class ControlInterfaz implements ActionListener {
             // No hay más duelos, mostrar campeón final
             GestorTorneo.EstadisticasTorneo stats = cLogica.getGestorTorneo().obtenerEstadisticas();
             Mago campeon = stats.getCampeonActual();
-            
+
             String mensaje = "🏆 ¡TORNEO FINALIZADO! 🏆\n\n"
-                + "Campeón: " + campeon.getNombre() + "\n"
-                + "Casa: " + campeon.getCasa() + "\n"
-                + "Duelos ganados: " + stats.getRondaActual();
-            
+                    + "Campeón: " + campeon.getNombre() + "\n"
+                    + "Casa: " + campeon.getCasa() + "\n"
+                    + "Duelos ganados: " + stats.getRondaActual();
+
             JOptionPane.showMessageDialog(vPrincipal, mensaje,
-                "¡Tenemos un Campeón!", JOptionPane.INFORMATION_MESSAGE);
-            
+                    "¡Tenemos un Campeón!", JOptionPane.INFORMATION_MESSAGE);
+
             vPrincipal.getPanelMain().mostrarPanelInicio();
         } else {
             // Hay más duelos disponibles
             int opcion = JOptionPane.showConfirmDialog(vPrincipal,
-                "¿Deseas continuar con el siguiente duelo?",
-                "Siguiente Ronda",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
-            
+                    "¿Deseas continuar con el siguiente duelo?",
+                    "Siguiente Ronda",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+
             if (opcion == JOptionPane.YES_OPTION) {
                 ejecutarSiguienteDuelo();
             } else {
@@ -293,6 +313,7 @@ public class ControlInterfaz implements ActionListener {
         }
     }
 
+    //TODO: no sabría si quitar este método pq no se uso
     /**
      * Muestra el resultado final de un duelo (usado para modo individual).
      *
@@ -301,20 +322,20 @@ public class ControlInterfaz implements ActionListener {
     public void mostrarResultado(ResultadoDuelo resultado) {
         if (resultado == null || resultado.getGanador() == null) {
             JOptionPane.showMessageDialog(vPrincipal,
-                "El duelo no generó un resultado válido.",
-                "Error", JOptionPane.ERROR_MESSAGE);
+                    "El duelo no generó un resultado válido.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         String mensaje = "🏆 GANADOR: " + resultado.getGanador().getNombre() + "\n"
-            + "Casa: " + resultado.getGanador().getCasa() + "\n\n"
-            + "Perdedor: " + resultado.getPerdedor().getNombre() + "\n"
-            + "Casa: " + resultado.getPerdedor().getCasa() + "\n\n"
-            + "Puntos: " + resultado.getPuntosGanador() + " - " 
-            + resultado.getPuntosPerdedor() + "\n"
-            + "Hechizos lanzados (ganador): " + resultado.getHechizosLanzadosGanador();
+                + "Casa: " + resultado.getGanador().getCasa() + "\n\n"
+                + "Perdedor: " + resultado.getPerdedor().getNombre() + "\n"
+                + "Casa: " + resultado.getPerdedor().getCasa() + "\n\n"
+                + "Puntos: " + resultado.getPuntosGanador() + " - "
+                + resultado.getPuntosPerdedor() + "\n"
+                + "Hechizos lanzados (ganador): " + resultado.getHechizosLanzadosGanador();
 
         JOptionPane.showMessageDialog(vPrincipal, mensaje,
-            "Resultado del Duelo", JOptionPane.INFORMATION_MESSAGE);
+                "Resultado del Duelo", JOptionPane.INFORMATION_MESSAGE);
     }
 }

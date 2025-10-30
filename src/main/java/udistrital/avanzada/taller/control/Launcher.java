@@ -14,7 +14,7 @@ package udistrital.avanzada.taller.control;
  * </p>
  *
  * @author Paula Martinez
- * @version 1.0
+ * @version 5.0
  * @since 2025-10-25
  */
 

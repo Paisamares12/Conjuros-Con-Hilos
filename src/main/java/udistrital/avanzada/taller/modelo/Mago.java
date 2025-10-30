@@ -12,8 +12,8 @@ package udistrital.avanzada.taller.modelo;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class Mago {
@@ -206,18 +206,5 @@ public class Mago {
         this.rival = rival;
     }
 
-    /**
-     * Devuelve una representación legible del mago.
-     * <p>
-     * Incluye su nombre, casa y puntos acumulados, con el formato:
-     * {@code "Nombre (Casa) - X pts"}.
-     * </p>
-     *
-     * @return descripción textual del mago
-     */
-    @Override
-    public String toString() {
-        return nombre + " (" + casa + ") - " + puntosAcumulados + " pts, " + hechizosLanzados + " hechizos";
-    }
 
 }

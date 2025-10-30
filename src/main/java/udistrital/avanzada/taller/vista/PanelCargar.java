@@ -31,7 +31,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * </p>
  *
  * @author Paula Martínez
- * @version 1.0
+ * @version 5.0
  * @since 2025-10-27
  */
 public class PanelCargar extends PanelBase {

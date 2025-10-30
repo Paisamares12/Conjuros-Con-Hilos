@@ -15,8 +15,8 @@ import java.util.List;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class LibroHechizos {
@@ -39,17 +39,6 @@ public class LibroHechizos {
      */
     public void setHechizos(List<Hechizo> hechizos) {
         this.hechizos = hechizos;
-    }
-
-
-    /**
-     * @return texto descriptivo del libro de hechizos
-     */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("Libro de Hechizos:\n");
-        hechizos.forEach(h -> sb.append("- ").append(h).append("\n"));
-        return sb.toString();
     }
 
 }

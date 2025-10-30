@@ -13,14 +13,15 @@ import udistrital.avanzada.taller.modelo.*;
  * </p>
  * 
  * <p>
- * Creada por Juan Sebastián Btavo Rojas
- * Modificada por Juan Ariza
+ * Creada por Juan Sebastián Bravo Rojas
+ * Modificada por Juan Ariza y Paula Martínez
  * </p>
  *
  * @author Juan Sebastián Bravo Rojas
- * @version 3.0
+ * @version 5.0
  * @since 2025-10-29
  */
+//TODO: revisar que cumpla con el MVC y los SOLID 
 public class CampoDeDuelo {
 
     private final Mago mago1;

@@ -10,8 +10,8 @@ package udistrital.avanzada.taller.modelo;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class Hechizo {
@@ -56,16 +56,4 @@ public class Hechizo {
         return puntos;
     }
 
-    /**
-     * Devuelve una representación en texto del hechizo.
-     * <p>
-     * El formato es: {@code "Nombre (X pts)"}.
-     * </p>
-     *
-     * @return descripción legible del hechizo
-     */
-    @Override
-    public String toString() {
-        return nombre + " (" + puntos + " pts)";
-    }
 }
