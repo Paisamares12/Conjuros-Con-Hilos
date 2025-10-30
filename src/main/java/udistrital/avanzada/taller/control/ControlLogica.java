@@ -10,15 +10,16 @@ import udistrital.avanzada.taller.modelo.persistencia.CargadorPropiedades;
  * Coordina la comunicación entre la interfaz de usuario y el modelo, cargando
  * los datos iniciales (magos y hechizos) y gestionando la ejecución de los
  * duelos mágicos y torneos.
- * 
- * Creada por Paula Martínez
- * Modificada por Juan Ariza
+ *
+ * Creada por Paula Martínez Modificada por Juan Ariza
  * </p>
  *
  * @author Paula Martínez
- * @version 3.0
+ * @version 5.0
  * @since 2025-10-29
  */
+
+//TODO: revisar que cumpla con el MVC y los SOLID *no sé si pueda tener modelo*
 public class ControlLogica {
 
     private ControlInterfaz cInterfaz;
@@ -40,19 +41,20 @@ public class ControlLogica {
     /**
      * Carga los magos desde un archivo de propiedades.
      *
-     * @param rutaArchivo ruta del archivo de magos (null para usar JFileChooser)
+     * @param rutaArchivo ruta del archivo de magos (null para usar
+     * JFileChooser)
      * @return true si la carga fue exitosa
      */
     public boolean cargarMagos(String rutaArchivo) {
         try {
             this.listado = cargador.cargarMagos(rutaArchivo);
-            
+
             // Si hay magos y hechizos cargados, inicializar el torneo
             if (listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-                && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
+                    && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
                 inicializarTorneo();
             }
-            
+
             return true;
         } catch (IOException e) {
             System.err.println("Error al cargar magos: " + e.getMessage());
@@ -63,19 +65,20 @@ public class ControlLogica {
     /**
      * Carga los hechizos desde un archivo de propiedades.
      *
-     * @param rutaArchivo ruta del archivo de hechizos (null para usar JFileChooser)
+     * @param rutaArchivo ruta del archivo de hechizos (null para usar
+     * JFileChooser)
      * @return true si la carga fue exitosa
      */
     public boolean cargarHechizos(String rutaArchivo) {
         try {
             this.libro = cargador.cargarHechizos(rutaArchivo);
-            
+
             // Si hay magos y hechizos cargados, inicializar el torneo
             if (listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-                && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
+                    && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
                 inicializarTorneo();
             }
-            
+
             return true;
         } catch (IOException e) {
             System.err.println("Error al cargar hechizos: " + e.getMessage());
@@ -127,8 +130,8 @@ public class ControlLogica {
      * @param observador observador del duelo
      * @return resultado del duelo
      */
-    public ResultadoDuelo iniciarDueloConObservador(Mago mago1, Mago mago2, 
-                                                     CampoDeDuelo.ObservadorDuelo observador) {
+    public ResultadoDuelo iniciarDueloConObservador(Mago mago1, Mago mago2,
+            CampoDeDuelo.ObservadorDuelo observador) {
         if (mago1 == null || mago2 == null) {
             throw new IllegalArgumentException("Los magos no pueden ser nulos");
         }
@@ -165,7 +168,7 @@ public class ControlLogica {
      */
     public ResultadoDuelo iniciarSiguienteDueloTorneoConObservador(
             CampoDeDuelo.ObservadorDuelo observador) {
-        
+
         if (gestorTorneo == null) {
             throw new IllegalStateException("No hay torneo inicializado");
         }
@@ -199,19 +202,64 @@ public class ControlLogica {
     }
 
     // ========== GETTERS ==========
-
+    /**
+     * Obtiene el listado actual de magos registrados en el sistema.
+     *
+     * <p>
+     * Este listado contiene todos los participantes disponibles para los duelos
+     * o torneos. Es cargado desde un archivo de propiedades mediante el
+     * {@link CargadorPropiedades}.
+     * </p>
+     *
+     * @return instancia de {@link ListadoMagos} con los magos actualmente
+     * cargados
+     */
     public ListadoMagos getListadoMagos() {
         return listado;
     }
 
+    /**
+     * Devuelve el libro de hechizos actualmente cargado en el sistema.
+     *
+     * <p>
+     * Este libro contiene todos los hechizos disponibles que los magos pueden
+     * usar durante los duelos mágicos. Es cargado desde un archivo de
+     * propiedades mediante el {@link CargadorPropiedades}.
+     * </p>
+     *
+     * @return objeto {@link LibroHechizos} con la lista de hechizos disponibles
+     */
     public LibroHechizos getLibroHechizos() {
         return libro;
     }
 
+    /**
+     * Obtiene el gestor de torneo actual.
+     *
+     * <p>
+     * El {@link GestorTorneo} administra el flujo de duelos, determina los
+     * enfrentamientos, lleva el historial de resultados y controla el avance de
+     * las rondas del torneo.
+     * </p>
+     *
+     * @return instancia activa de {@link GestorTorneo}, o {@code null} si el
+     * torneo no se ha inicializado
+     */
     public GestorTorneo getGestorTorneo() {
         return gestorTorneo;
     }
 
+    /**
+     * Devuelve el controlador encargado de gestionar la interfaz gráfica.
+     *
+     * <p>
+     * El {@link ControlInterfaz} coordina la interacción con el usuario, los
+     * paneles gráficos y la actualización visual de los duelos y torneos.
+     * </p>
+     *
+     * @return instancia de {@link ControlInterfaz} utilizada por esta capa
+     * lógica
+     */
     public ControlInterfaz getControlInterfaz() {
         return cInterfaz;
     }
@@ -223,6 +271,6 @@ public class ControlLogica {
      */
     public boolean datosListos() {
         return listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-            && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty();
+                && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty();
     }
 }

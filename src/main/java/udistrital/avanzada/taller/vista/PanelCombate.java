@@ -9,19 +9,23 @@ import java.awt.*;
 import udistrital.avanzada.taller.modelo.*;
 
 /**
- * Panel que muestra visualmente el desarrollo de un duelo mágico en tiempo real.
+ * Panel que muestra visualmente el desarrollo de un duelo mágico en tiempo
+ * real.
  * <p>
  * Este panel presenta información dinámica sobre ambos magos participantes,
- * incluyendo puntos acumulados, hechizos lanzados, estado de aturdimiento,
- * y barras de progreso visuales.
+ * incluyendo puntos acumulados, hechizos lanzados, estado de aturdimiento, y
+ * barras de progreso visuales.
+ *
+ * Creada por Juan Ariza modificada por Paula Martínez
  * </p>
  *
  * @author Juan Estevan Ariza Ortiz
- * @version 3.0
+ * @version 5.0
  * @since 2025-10-29
  */
 
-//TODO: Es necesario agregar un botón para regresar a la ventana principal
+//TODO: Sacar todo el modelo de aca, la Vista no se puede comunicar directamente con el modelo
+//TODO: revisar que cumpla con el MVC y los SOLID 
 public class PanelCombate extends PanelBase {
 
     // Componentes del Mago 1
@@ -178,15 +182,28 @@ public class PanelCombate extends PanelBase {
      * Crea un panel semi-transparente para contener la información de un mago.
      */
     private JPanel crearPanelMago() {
-        JPanel panel = new JPanel();
+        JPanel panel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // limpia
+                // (si el padre es no-opaco, asegúrate de que el padre también hace super.paintComponent)
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setComposite(AlphaComposite.SrcOver.derive(0.6f)); // 60% opacidad
+                g2.setColor(Color.BLACK);
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 12, 12);
+                g2.dispose();
+            }
+        };
+        panel.setOpaque(false); // el panel se pinta a sí mismo con alpha
         panel.setLayout(null);
-        panel.setBackground(new Color(0, 0, 0, 150));
         panel.setBorder(BorderFactory.createLineBorder(Color.YELLOW, 3));
         return panel;
     }
 
     /**
      * Inicializa el panel con la información de los magos participantes.
+     *
      * @param mago1
      * @param mago2
      */
@@ -214,8 +231,8 @@ public class PanelCombate extends PanelBase {
         // Log
         txtLog.setText("");
         agregarLog("=== INICIO DEL DUELO ===");
-        agregarLog(mago1.getNombre() + " (" + mago1.getCasa() + ") vs " + 
-                   mago2.getNombre() + " (" + mago2.getCasa() + ")");
+        agregarLog(mago1.getNombre() + " (" + mago1.getCasa() + ") vs "
+                + mago2.getNombre() + " (" + mago2.getCasa() + ")");
         agregarLog("¡Que comience el duelo!\n");
 
         btnVolver.setEnabled(false);
@@ -223,6 +240,7 @@ public class PanelCombate extends PanelBase {
 
     /**
      * Actualiza la información de un mago después de lanzar un hechizo.
+     *
      * @param mago
      * @param hechizo
      * @param puntosActuales
@@ -245,6 +263,7 @@ public class PanelCombate extends PanelBase {
 
     /**
      * Marca a un mago como aturdido.
+     *
      * @param mago
      */
     public void marcarAturdido(Mago mago) {
@@ -263,6 +282,7 @@ public class PanelCombate extends PanelBase {
 
     /**
      * Marca a un mago como recuperado.
+     *
      * @param mago
      */
     public void marcarRecuperado(Mago mago) {
@@ -281,6 +301,7 @@ public class PanelCombate extends PanelBase {
 
     /**
      * Muestra el resultado final del duelo.
+     *
      * @param resultado
      */
     public void mostrarResultado(ResultadoDuelo resultado) {
@@ -289,7 +310,7 @@ public class PanelCombate extends PanelBase {
             agregarLog("🏆 GANADOR: " + resultado.getGanador().getNombre());
             agregarLog("Puntos finales: " + resultado.getPuntosGanador() + " - " + resultado.getPuntosPerdedor());
             agregarLog("Hechizos lanzados por el ganador: " + resultado.getHechizosLanzadosGanador());
-            
+
             btnVolver.setEnabled(true);
         });
     }
@@ -306,14 +327,21 @@ public class PanelCombate extends PanelBase {
      * Obtiene el color asociado a una casa de Hogwarts.
      */
     private Color obtenerColorCasa(String casa) {
-        if (casa == null) return Color.WHITE;
-        
+        if (casa == null) {
+            return Color.WHITE;
+        }
+
         return switch (casa.toLowerCase()) {
-            case "gryffindor" -> COLOR_GRYFFINDOR;
-            case "slytherin" -> COLOR_SLYTHERIN;
-            case "hufflepuff" -> COLOR_HUFFLEPUFF;
-            case "ravenclaw" -> COLOR_RAVENCLAW;
-            default -> Color.WHITE;
+            case "gryffindor" ->
+                COLOR_GRYFFINDOR;
+            case "slytherin" ->
+                COLOR_SLYTHERIN;
+            case "hufflepuff" ->
+                COLOR_HUFFLEPUFF;
+            case "ravenclaw" ->
+                COLOR_RAVENCLAW;
+            default ->
+                Color.WHITE;
         };
     }
 
@@ -321,13 +349,16 @@ public class PanelCombate extends PanelBase {
      * Compara nombres ignorando diferencias de mayúsculas/minúsculas.
      */
     private boolean esNombreIgual(String nombre1, String nombre2) {
-        if (nombre1 == null || nombre2 == null) return false;
+        if (nombre1 == null || nombre2 == null) {
+            return false;
+        }
         return nombre1.trim().equalsIgnoreCase(nombre2.trim());
     }
 
     /**
      * Obtiene el botón de volver.
-     * @return 
+     *
+     * @return
      */
     public JButton getBotonVolver() {
         return btnVolver;

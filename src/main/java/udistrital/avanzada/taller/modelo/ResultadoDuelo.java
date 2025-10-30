@@ -14,8 +14,8 @@ package udistrital.avanzada.taller.modelo;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class ResultadoDuelo {
@@ -135,37 +135,5 @@ public class ResultadoDuelo {
      */
     public void setHechizosLanzadosGanador(int hechizosLanzadosGanador) {
         this.hechizosLanzadosGanador = hechizosLanzadosGanador;
-    }
-
-    
-    //TODO: No estoy seguro de si se pueda usar el toString
-    /**
-     * Devuelve una representación textual del resultado del duelo.
-     * Uso de toString
-     * <p>
-     * Ejemplo:
-     * <pre>
-     * Ganador: Harry (Gryffindor)
-     * Perdedor: Draco (Slytherin)
-     * Puntos: 80 - 60
-     * Hechizos lanzados por el ganador: 4
-     * </pre>
-     * </p>
-     *
-     * @return texto legible del resultado
-     */
-    @Override
-    public String toString() {
-        String nombreG = (ganador != null)
-                ? ganador.getNombre() + " (" + ganador.getCasa() + ")"
-                : "N/A";
-        String nombreP = (perdedor != null)
-                ? perdedor.getNombre() + " (" + perdedor.getCasa() + ")"
-                : "N/A";
-
-        return "Ganador: " + nombreG + "\n"
-                + "Perdedor: " + nombreP + "\n"
-                + "Puntos: " + puntosGanador + " - " + puntosPerdedor + "\n"
-                + "Hechizos lanzados por el ganador: " + hechizosLanzadosGanador;
     }
 }
