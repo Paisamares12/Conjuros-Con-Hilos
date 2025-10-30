@@ -1,5 +1,7 @@
 package udistrital.avanzada.taller.modelo;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,36 +17,25 @@ import java.util.List;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class ListadoMagos {
 
     /** Lista de magos participantes. */
-    private List<Mago> magos;
+    private List<Mago> magos = new ArrayList<>(); //inicializa vacía por defecto
 
-    /** @return lista de magos registrados */
+    /** @return lista de magos registrados (nunca null) */
     public List<Mago> getMagos() {
-        return List.copyOf(magos);
+        // si aún no se asignó o es null, devuelve lista vacía
+        return magos == null ? Collections.emptyList() : List.copyOf(magos);
     }
 
 
     /** @param magos nueva lista de magos */
     public void setMagos(List<Mago> magos) {
-        if (magos == null) {
-            throw new IllegalArgumentException("La lista de magos no puede ser nula.");
-        }
         this.magos = magos;
-    }
-
-
-    /** @return texto descriptivo del listado de magos */
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder("Listado de Magos:\n");
-        magos.forEach(m -> sb.append("- ").append(m).append("\n"));
-        return sb.toString();
     }
 
 }

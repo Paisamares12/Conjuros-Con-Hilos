@@ -1,20 +1,56 @@
 package udistrital.avanzada.taller.vista;
 
+import java.io.File;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
+ * Panel encargado de la interfaz de carga de archivos de propiedades
+ * (.properties) para magos y hechizos dentro del juego <b>ConjurosConHilos</b>.
  *
- * @author paisa
+ * <p>
+ * Este panel forma parte de la capa de vista (MVC) y se comunica con el
+ * {@link udistrital.avanzada.taller.control.ControlInterfaz} mediante listeners
+ * registrados sobre sus botones.
+ * </p>
+ *
+ * <p>
+ * Permite al usuario:
+ * <ul>
+ * <li>Cargar el archivo de hechizos.</li>
+ * <li>Cargar el archivo de magos.</li>
+ * <li>Iniciar el juego (una vez que ambos estén cargados).</li>
+ * <li>Salir del programa.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>
+ * La carga de archivos se realiza a través de un {@link JFileChooser} con un
+ * filtro específico para archivos <code>.properties</code>.
+ * </p>
+ *
+ * @author Paula Martínez
+ * @version 5.0
+ * @since 2025-10-27
  */
 public class PanelCargar extends PanelBase {
 
     /**
-     * Creates new form PanelCargar
+     * Crea el panel y sus componentes visuales.
+     * <p>
+     * Este constructor invoca el método {@link #initComponents()}, que es
+     * generado automáticamente por el diseñador de interfaces (GUI Builder) de
+     * NetBeans. No debe modificarse manualmente.
+     * </p>
      */
     public PanelCargar() {
         initComponents();
     }
 
+    // ==============================================================
+    //   MÉTODOS DE ACCESO A LOS BOTONES (para uso del controlador)
+    // ==============================================================
     /**
      * Devuelve la referencia al botón <strong>SALIR</strong> para que el
      * controlador pueda registrar su listener y manejar el cierre de la
@@ -36,7 +72,65 @@ public class PanelCargar extends PanelBase {
     public JButton getBotonJugar() {
         return botonJugar;
     }
-    
+
+    /**
+     * Devuelve la referencia al botón <strong>Cargar Magos</strong> para que el
+     * controlador pueda registrar su listener y manejar la carga del archivo de
+     * propiedades correspondiente.
+     *
+     * @return la instancia del botón de carga de magos
+     */
+    public JButton getBotonCargarMagos() {
+        return botonCargarMagos;
+    }
+
+    /**
+     * Devuelve la referencia al botón <strong>Cargar Hechizos</strong> para que
+     * el controlador pueda registrar su listener y manejar la carga del archivo
+     * de propiedades correspondiente.
+     *
+     * @return la instancia del botón de carga de hechizos
+     */
+    public JButton getBotonCargarHechizos() {
+        return botonCargarHechizos;
+    }
+
+    /**
+     * Abre un cuadro de diálogo para seleccionar un archivo de propiedades.
+     * <p>
+     * Este método utiliza {@link JFileChooser} para que el usuario seleccione
+     * un archivo con extensión <code>.properties</code>. Retorna la ruta
+     * absoluta del archivo seleccionado o {@code null} si el usuario cancela la
+     * operación.
+     * </p>
+     *
+     * @param descripcion texto descriptivo que se muestra en el título del
+     * cuadro de diálogo (por ejemplo "hechizos" o "magos")
+     * @return la ruta absoluta del archivo seleccionado, o {@code null} si no
+     * se selecciona ninguno
+     */
+    public String cargarProperties(String descripcion) {
+        // Se crea el selector de archivos, iniciando en el directorio de trabajo actual.
+        JFileChooser chooser = new JFileChooser(System.getProperty("user.dir"));
+
+        // Se configura el título y el filtro de extensión
+        chooser.setDialogTitle("Seleccionar archivo de " + descripcion);
+        chooser.setFileFilter(new FileNameExtensionFilter(
+                "Archivos de propiedades (*.properties)", "properties"));
+
+        // Se muestra el diálogo y se obtiene el resultado
+        int resultado = chooser.showOpenDialog(null);
+
+        // Si el usuario confirma la selección, se devuelve la ruta absoluta
+        if (resultado == JFileChooser.APPROVE_OPTION) {
+            File archivo = chooser.getSelectedFile();
+            return archivo.getAbsolutePath();
+        }
+
+        // Si cancela o cierra, retorna null
+        return null;
+    }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

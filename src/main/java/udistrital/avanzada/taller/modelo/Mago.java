@@ -12,8 +12,8 @@ package udistrital.avanzada.taller.modelo;
  * Modificada por Juan Sebastián Bravo Rojas
  * </p>
  * 
- * @author Paula
- * @version 2.0
+ * @author Paula Martínez
+ * @version 5.0
  * @since 2025-10-26
  */
 public class Mago {
@@ -129,9 +129,6 @@ public class Mago {
      * @param puntosAcumulados nuevos puntos del mago
      */
     public void setPuntosAcumulados(int puntosAcumulados) {
-        if (puntosAcumulados < 0) {
-            throw new IllegalArgumentException("Los puntos acumulados no pueden ser negativos.");
-        }
         this.puntosAcumulados = puntosAcumulados;
     }
 
@@ -169,9 +166,6 @@ public class Mago {
      * @param nombre nuevo nombre del mago
      */
     public void setNombre(String nombre) {
-        if (nombre == null || nombre.isBlank()) {
-            throw new IllegalArgumentException("El nombre del mago no puede estar vacío.");
-        }
         this.nombre = nombre.trim();
     }
 
@@ -191,9 +185,6 @@ public class Mago {
      * @param casa nueva casa del mago
      */
     public void setCasa(String casa) {
-        if (casa == null || casa.isBlank()) {
-            throw new IllegalArgumentException("La casa del mago no puede estar vacía.");
-        }
         this.casa = casa.trim();
     }
 
@@ -215,18 +206,5 @@ public class Mago {
         this.rival = rival;
     }
 
-    /**
-     * Devuelve una representación legible del mago.
-     * <p>
-     * Incluye su nombre, casa y puntos acumulados, con el formato:
-     * {@code "Nombre (Casa) - X pts"}.
-     * </p>
-     *
-     * @return descripción textual del mago
-     */
-    @Override
-    public String toString() {
-        return nombre + " (" + casa + ") - " + puntosAcumulados + " pts, " + hechizosLanzados + " hechizos";
-    }
 
 }
