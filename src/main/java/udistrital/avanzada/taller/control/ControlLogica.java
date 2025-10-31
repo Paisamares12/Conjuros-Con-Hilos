@@ -23,12 +23,12 @@ import udistrital.avanzada.taller.modelo.persistencia.CargadorPropiedades;
  *
  * @author Paula
  * @version 6.0
- * @since 2025-10-29
+ * @since 2025-10-31
  */
 public class ControlLogica {
 
     private final CargadorPropiedades cargador;
-    private final ControlInterfaz cInterfaz;
+    private ControlInterfaz cInterfaz;
 
     private LibroHechizos libro;
     private ListadoMagos listado;
@@ -42,6 +42,16 @@ public class ControlLogica {
         this.libro = new LibroHechizos();
         this.listado = new ListadoMagos();
         this.cInterfaz = new ControlInterfaz(this);
+    }
+
+    /**
+     * Establece la referencia al controlador de interfaz.
+     * Se usa para evitar dependencias circulares en la construcción.
+     * 
+     * @param cInterfaz controlador de interfaz
+     */
+    public void setControlInterfaz(ControlInterfaz cInterfaz) {
+        this.cInterfaz = cInterfaz;
     }
 
     // ============================================================
@@ -81,12 +91,23 @@ public class ControlLogica {
 
     /**
      * Ejecuta un duelo simple (sin torneo) y notifica el resultado.
+     * 
+     * CORREGIDO: Ahora pasa correctamente la instancia 'resultado' 
+     * en lugar de la clase 'ResultadoDuelo'.
+     * 
+     * @param m1 primer mago
+     * @param m2 segundo mago
      */
     public void ejecutarDueloSimple(Mago m1, Mago m2) {
-        if (m1 == null || m2 == null) throw new IllegalArgumentException("Magos inválidos");
+        if (m1 == null || m2 == null) {
+            throw new IllegalArgumentException("Magos inválidos");
+        }
+        
         CampoDeDuelo duelo = new CampoDeDuelo(m1, m2, libro);
         ResultadoDuelo resultado = duelo.iniciar();
-        cInterfaz.mostrarResultado(resultado);
+        
+        // ✅ CORRECCIÓN: Pasar la instancia 'resultado', no la clase 'ResultadoDuelo'
+        cInterfaz.notificarResultadoDuelo(resultado);
     }
 
     /**
@@ -149,5 +170,13 @@ public class ControlLogica {
 
     public GestorTorneo getGestorTorneo() {
         return gestorTorneo;
+    }
+    
+    public LibroHechizos getLibro() {
+        return libro;
+    }
+    
+    public ListadoMagos getListado() {
+        return listado;
     }
 }
