@@ -28,6 +28,7 @@ import udistrital.avanzada.taller.modelo.Mago;
  * No usa rutas “quemadas”: cuando la ruta no es provista, abre un
  * {@link JFileChooser} para que el usuario seleccione el archivo. Los formatos
  * esperados son:
+ * </p>
  * <ul>
  * <li><b>magos.properties</b>: con la clave {@code count} y pares
  * {@code mago.&lt;i&gt;.nombre}, {@code mago.&lt;i&gt;.casa} (i=1..count).</li>
@@ -35,7 +36,7 @@ import udistrital.avanzada.taller.modelo.Mago;
  * {@code hechizo.&lt;i&gt;.nombre}, {@code hechizo.&lt;i&gt;.puntos}
  * (i=1..count).</li>
  * </ul>
- * </p>
+ * 
  *
  * <p>
  * <b>Ejemplo de propiedades (magos.properties):</b></p>
@@ -55,7 +56,7 @@ import udistrital.avanzada.taller.modelo.Mago;
  * </p>
  *
  * @author Paula Martínez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-26
  */
 public class CargadorPropiedades {

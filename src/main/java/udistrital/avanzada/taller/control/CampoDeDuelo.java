@@ -18,7 +18,7 @@ import udistrital.avanzada.taller.modelo.*;
  * </p>
  *
  * @author Juan Sebastián Bravo Rojas
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-29
  */
 //TODO: revisar que cumpla con el MVC y los SOLID 

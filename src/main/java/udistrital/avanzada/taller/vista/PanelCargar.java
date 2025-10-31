@@ -17,13 +17,14 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  *
  * <p>
  * Permite al usuario:
+ * </p>
  * <ul>
  * <li>Cargar el archivo de hechizos.</li>
  * <li>Cargar el archivo de magos.</li>
  * <li>Iniciar el juego (una vez que ambos estén cargados).</li>
  * <li>Salir del programa.</li>
  * </ul>
- * </p>
+ * 
  *
  * <p>
  * La carga de archivos se realiza a través de un {@link JFileChooser} con un
@@ -31,7 +32,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  * </p>
  *
  * @author Paula Martínez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-27
  */
 public class PanelCargar extends PanelBase {

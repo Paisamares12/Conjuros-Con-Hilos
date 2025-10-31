@@ -9,29 +9,60 @@ import udistrital.avanzada.taller.vista.VentanaPrincipal;
 
 /**
  * Controlador de la capa de interfaz del proyecto <b>ConjurosConHilos</b>.
+ *
  * <p>
  * Gestiona la comunicación entre la vista y la capa lógica sin acceder
- * directamente al modelo. Se limita a manejar eventos de usuario y delegar
- * las operaciones lógicas a {@link ControlLogica}.
+ * directamente al modelo. Se limita a manejar eventos de usuario y delegar las
+ * operaciones lógicas a {@link ControlLogica}.
  * </p>
  *
- * Cumple el patrón MVC y los principios SRP y DIP.
+ * <p>
+ * Cumple el patrón MVC y los principios SOLID (SRP y DIP).
+ * </p>
  *
+ * <p>
  * Creada por Paula Martínez. Refactorizada por Juan Ariza.
+ * </p>
+ *
+ * @author Paula Martínez
+ * @version 6.0
+ * @since 2025-10-29
  */
 public class ControlInterfaz implements ActionListener {
 
+    /**
+     * Controlador de la capa lógica al que se delegan las operaciones.
+     */
     private final ControlLogica cLogica;
+
+    /**
+     * Ventana principal de la aplicación (punto de entrada a los paneles).
+     */
     private VentanaPrincipal vPrincipal;
 
+    /**
+     * Indicador de que el archivo de magos fue cargado exitosamente.
+     */
     private boolean magosReady = false;
+
+    /**
+     * Indicador de que el archivo de hechizos fue cargado exitosamente.
+     */
     private boolean hechizosReady = false;
 
+    /**
+     * Crea el controlador de interfaz y lanza la ventana principal.
+     *
+     * @param cLogica controlador lógico asociado a esta interfaz
+     */
     public ControlInterfaz(ControlLogica cLogica) {
         this.cLogica = cLogica;
         iniciarPrograma();
     }
 
+    /**
+     * Inicializa la ventana principal, la hace visible y conecta los listeners.
+     */
     private void iniciarPrograma() {
         this.vPrincipal = new VentanaPrincipal(this);
         vPrincipal.setVisible(true);
@@ -39,6 +70,14 @@ public class ControlInterfaz implements ActionListener {
         conectarEventos();
     }
 
+    /**
+     * Conecta todos los componentes interactivos de la vista a este
+     * controlador.
+     *
+     * <p>
+     * Registra este objeto como {@link ActionListener} de los botones de los
+     * paneles Inicio, Cargar y Combate.</p>
+     */
     private void conectarEventos() {
         // Inicio
         vPrincipal.getPanelMain().getPanelInicio().getBotonJugar().addActionListener(this);
@@ -52,6 +91,16 @@ public class ControlInterfaz implements ActionListener {
         vPrincipal.getPanelMain().getPanelCombate().getBotonVolver().addActionListener(this);
     }
 
+    /**
+     * Maneja todos los eventos de clic en botones registrados.
+     *
+     * <p>
+     * Resuelve navegación entre paneles, carga de archivos de propiedades,
+     * arranque del torneo y avance entre duelos.
+     * </p>
+     *
+     * @param e evento de acción generado por la vista
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         Object src = e.getSource();
@@ -100,12 +149,16 @@ public class ControlInterfaz implements ActionListener {
             return;
         }
 
-        // Volver al inicio
+        // Volver al inicio (o avanzar al siguiente duelo, según el flujo)
         if (src == vPrincipal.getPanelMain().getPanelCombate().getBotonVolver()) {
             mostrarOpcionesDespuesDuelo();
         }
     }
 
+    /**
+     * Muestra un aviso cuando magos y hechizos han sido cargados correctamente,
+     * habilitando el inicio del torneo.
+     */
     private void verificarDatosCompletos() {
         if (magosReady && hechizosReady) {
             JOptionPane.showMessageDialog(vPrincipal,
@@ -114,6 +167,12 @@ public class ControlInterfaz implements ActionListener {
         }
     }
 
+    /**
+     * Valida que existan datos y condiciones mínimas para iniciar el torneo.
+     *
+     * <p>
+     * Si las condiciones se cumplen, delega la ejecución del primer duelo.</p>
+     */
     private void iniciarTorneo() {
         if (!cLogica.datosListos()) {
             JOptionPane.showMessageDialog(vPrincipal,
@@ -130,6 +189,16 @@ public class ControlInterfaz implements ActionListener {
         ejecutarSiguienteDuelo();
     }
 
+    /**
+     * Lanza el siguiente duelo del torneo y conecta los eventos del combate a
+     * la vista mediante un observador.
+     *
+     * <p>
+     * Cambia al panel de combate e instala un
+     * {@link CampoDeDuelo.ObservadorDuelo} que actualiza la interfaz en tiempo
+     * real. La ejecución del duelo es delegada a {@link ControlLogica}.
+     * </p>
+     */
     private void ejecutarSiguienteDuelo() {
         vPrincipal.getPanelMain().mostrarPanelCombate();
 
@@ -156,14 +225,22 @@ public class ControlInterfaz implements ActionListener {
 
             @Override
             public void onFinDuelo(ResultadoDuelo r) {
+                // Encolar la actualización en la EDT para mantener la UI segura.
                 SwingUtilities.invokeLater(() -> mostrarResultadoDuelo(r));
             }
         };
 
-        // ✅ Ahora lo delegamos totalmente a ControlLogica
+        // Delegar completamente la ejecución del duelo al controlador lógico.
         cLogica.ejecutarSiguienteDueloTorneoConObservador(obs);
     }
 
+    /**
+     * Presenta el resultado del duelo en el panel de combate y decide, según el
+     * estado del torneo, si continuar con el siguiente duelo o finalizar
+     * mostrando el campeón.
+     *
+     * @param r resultado del duelo finalizado
+     */
     private void mostrarResultadoDuelo(ResultadoDuelo r) {
         vPrincipal.getPanelMain().getPanelCombate().mostrarResultado(r);
 
@@ -187,13 +264,21 @@ public class ControlInterfaz implements ActionListener {
         }
     }
 
+    /**
+     * Ofrece opciones al usuario al terminar un duelo cuando se presiona el
+     * botón del panel de combate: continuar con el siguiente o regresar al menú
+     * de inicio.
+     */
     private void mostrarOpcionesDespuesDuelo() {
         if (cLogica.puedeIniciarDuelo()) {
             int op = JOptionPane.showConfirmDialog(vPrincipal,
                     "¿Deseas continuar con el siguiente duelo?",
                     "Siguiente Ronda", JOptionPane.YES_NO_OPTION);
-            if (op == JOptionPane.YES_OPTION) ejecutarSiguienteDuelo();
-            else vPrincipal.getPanelMain().mostrarPanelInicio();
+            if (op == JOptionPane.YES_OPTION) {
+                ejecutarSiguienteDuelo();
+            } else {
+                vPrincipal.getPanelMain().mostrarPanelInicio();
+            }
         } else {
             Mago campeon = cLogica.getCampeonActual();
             String msg = "🏆 ¡TORNEO FINALIZADO! 🏆\n\nCampeón: " + campeon.getNombre()
@@ -204,8 +289,17 @@ public class ControlInterfaz implements ActionListener {
         }
     }
 
+    /**
+     * Muestra un resumen de resultado de duelo (modo individual) mediante un
+     * diálogo.
+     *
+     * @param r resultado del duelo; si es {@code null}, no se muestra
+     * información
+     */
     public void mostrarResultado(ResultadoDuelo r) {
-        if (r == null) return;
+        if (r == null) {
+            return;
+        }
         String msg = "🏆 GANADOR: " + r.getGanador().getNombre()
                 + "\nCasa: " + r.getGanador().getCasa()
                 + "\n\nPerdedor: " + r.getPerdedor().getNombre()
