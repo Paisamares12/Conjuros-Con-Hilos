@@ -10,7 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Panel que muestra visualmente el desarrollo de un duelo mágico en tiempo real.
+ * Panel que muestra visualmente el desarrollo de un duelo mágico en tiempo real a través del observador
  * <p>
  * RESPETA MVC: No tiene dependencias con el modelo, solo usa interfaces de vista.
  * Incluye imágenes de magos, animación de lanzamiento de hechizos con efectos visuales
@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
  * </p>
  *
  * @author Juan Estevan Ariza Ortiz
- * @version 6.2 - Con panel direccional de hechizos
+ * @version 6.0
  * @since 2025-10-31
  */
 public class PanelCombate extends PanelBase {

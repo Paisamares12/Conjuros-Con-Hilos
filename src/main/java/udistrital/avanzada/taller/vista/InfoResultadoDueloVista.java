@@ -8,7 +8,7 @@ package udistrital.avanzada.taller.vista;
  * Interfaz que representa la información del resultado de un duelo para la vista.
  * Desacopla la vista del modelo siguiendo el patrón MVC.
  * 
- * @author Refactorización MVC
+ * @author Juan Estevan Ariza Ortiz
  * @version 6.0
  * @since 2025-10-31
  */

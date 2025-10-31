@@ -13,12 +13,13 @@ import udistrital.avanzada.taller.vista.*;
  * Actúa como adaptador entre el modelo y la vista,
  * convirtiendo objetos del modelo en interfaces que la vista puede usar
  * sin depender directamente del modelo (respetando MVC completamente).
+ * 
+ * Modificada por Juan Sebastian Bravo y Juan Ariza
  * </p>
  *
- * Cumple el patrón MVC y los principios SRP y DIP.
  *
  * @author Paula Martínez
- * @version 6.0 - Refactorizado MVC
+ * @version 6.0 
  * @since 2025-10-31
  */
 public class ControlInterfaz implements ActionListener {

@@ -15,9 +15,6 @@ import udistrital.avanzada.taller.modelo.persistencia.CargadorPropiedades;
  * torneo) y el control del flujo general del simulador.
  * </p>
  *
- * <p>
- * Cumple con el patrón MVC y los principios SOLID, especialmente SRP y DIP.
- * </p>
  *
  * Creada por Paula Martínez y modificada por Juan Ariza y Sebastián Bravo.
  *
@@ -54,10 +51,13 @@ public class ControlLogica {
         this.cInterfaz = cInterfaz;
     }
 
-    // ============================================================
-    // ===============   CARGA DE DATOS   =========================
-    // ============================================================
-
+    /**
+     * El que utilizará la carga del archivo properties para los magos
+     * 
+     * 
+     * @param rutaArchivo
+     * @return 
+     */
     public boolean cargarMagos(String rutaArchivo) {
         try {
             this.listado = cargador.cargarMagos(rutaArchivo);
@@ -85,15 +85,10 @@ public class ControlLogica {
             gestorTorneo = new GestorTorneo(listado, libro);
     }
 
-    // ============================================================
-    // ===============   EJECUCIÓN DE DUELOS   ====================
-    // ============================================================
-
     /**
      * Ejecuta un duelo simple (sin torneo) y notifica el resultado.
      * 
-     * CORREGIDO: Ahora pasa correctamente la instancia 'resultado' 
-     * en lugar de la clase 'ResultadoDuelo'.
+     * Pasa la instancia 'resultado' para el desarrollo de los duelos
      * 
      * @param m1 primer mago
      * @param m2 segundo mago
@@ -106,7 +101,7 @@ public class ControlLogica {
         CampoDeDuelo duelo = new CampoDeDuelo(m1, m2, libro);
         ResultadoDuelo resultado = duelo.iniciar();
         
-        // ✅ CORRECCIÓN: Pasar la instancia 'resultado', no la clase 'ResultadoDuelo'
+        //Envio de resultados
         cInterfaz.notificarResultadoDuelo(resultado);
     }
 
@@ -136,9 +131,11 @@ public class ControlLogica {
         worker.execute();
     }
 
-    // ============================================================
-    // ===============   MÉTODOS DE ESTADO   ======================
-    // ============================================================
+
+    /**
+     * Metodos para la revisión del estado del torneo y pueda ejecutarse.
+     * @return 
+     */
 
     public boolean datosListos() {
         return listado != null && !listado.getMagos().isEmpty()
@@ -154,27 +151,48 @@ public class ControlLogica {
             gestorTorneo = new GestorTorneo(listado, libro);
     }
 
-    // ============================================================
-    // ===============   GETTERS DE INFORMACIÓN ===================
-    // ============================================================
+    /**
+     * Getters para la información
+     * 
+     * @return 
+     */
 
     public Mago getCampeonActual() {
         if (gestorTorneo == null) return null;
         return gestorTorneo.obtenerEstadisticas().getCampeonActual();
     }
+    
+    /**
+     * Getters para la información
+     * @return Estadisticas de datos realizados
+     */
 
     public int getDuelosRealizados() {
         if (gestorTorneo == null) return 0;
         return gestorTorneo.obtenerEstadisticas().getDuelosRealizados();
     }
+    
+    /**
+     * Getters para la información
+     * @return gestorTorneo
+     */
 
     public GestorTorneo getGestorTorneo() {
         return gestorTorneo;
     }
+    /**
+     * Getters para la información
+     * @return libro
+     */
     
     public LibroHechizos getLibro() {
         return libro;
     }
+    
+    /**
+     * Getters para la información
+     * @return listado
+     */
     
     public ListadoMagos getListado() {
         return listado;
