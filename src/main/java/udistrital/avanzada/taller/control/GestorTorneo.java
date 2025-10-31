@@ -46,6 +46,7 @@ import udistrital.avanzada.taller.modelo.*;
  * @version 5.0
  * @since 2025-10-29
  */
+//TODO: revisar que cumpla con el MVC y los SOLID 
 public class GestorTorneo {
 
     /**
