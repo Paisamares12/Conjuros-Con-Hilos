@@ -55,7 +55,7 @@ import udistrital.avanzada.taller.modelo.Mago;
  * </p>
  *
  * @author Paula Martínez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-26
  */
 public class CargadorPropiedades {

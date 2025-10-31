@@ -5,19 +5,22 @@ import java.awt.event.ActionListener;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import udistrital.avanzada.taller.modelo.*;
-import udistrital.avanzada.taller.vista.VentanaPrincipal;
+import udistrital.avanzada.taller.vista.*;
 
 /**
  * Controlador de la capa de interfaz del proyecto <b>ConjurosConHilos</b>.
  * <p>
- * Gestiona la comunicación entre la vista y la capa lógica sin acceder
- * directamente al modelo. Se limita a manejar eventos de usuario y delegar
- * las operaciones lógicas a {@link ControlLogica}.
+ * Actúa como adaptador entre el modelo y la vista,
+ * convirtiendo objetos del modelo en interfaces que la vista puede usar
+ * sin depender directamente del modelo (respetando MVC completamente).
+ * 
+ * Modificada por Juan Sebastian Bravo y Juan Ariza
  * </p>
  *
- * Cumple el patrón MVC y los principios SRP y DIP.
  *
- * Creada por Paula Martínez. Refactorizada por Juan Ariza.
+ * @author Paula Martínez
+ * @version 6.0 
+ * @since 2025-10-31
  */
 public class ControlInterfaz implements ActionListener {
 
@@ -133,38 +136,50 @@ public class ControlInterfaz implements ActionListener {
     private void ejecutarSiguienteDuelo() {
         vPrincipal.getPanelMain().mostrarPanelCombate();
 
+        // Crear observador que adapta del modelo a la vista
         CampoDeDuelo.ObservadorDuelo obs = new CampoDeDuelo.ObservadorDuelo() {
             @Override
             public void onInicioDuelo(Mago m1, Mago m2) {
-                vPrincipal.getPanelMain().getPanelCombate().inicializarDuelo(m1, m2);
+                // Convertir Mago del modelo a InfoMagoVista
+                InfoMagoVista info1 = adaptarMago(m1);
+                InfoMagoVista info2 = adaptarMago(m2);
+                vPrincipal.getPanelMain().getPanelCombate().inicializarDuelo(info1, info2);
             }
 
             @Override
             public void onHechizoLanzado(Mago m, Hechizo h, int puntos) {
-                vPrincipal.getPanelMain().getPanelCombate().actualizarMago(m, h, puntos);
+                // Convertir Hechizo del modelo a InfoHechizoVista
+                InfoHechizoVista infoHechizo = adaptarHechizo(h);
+                vPrincipal.getPanelMain().getPanelCombate().actualizarMago(
+                    m.getNombre(), infoHechizo, puntos
+                );
             }
 
             @Override
             public void onMagoAturdido(Mago m) {
-                vPrincipal.getPanelMain().getPanelCombate().marcarAturdido(m);
+                vPrincipal.getPanelMain().getPanelCombate().marcarAturdido(m.getNombre());
             }
 
             @Override
             public void onMagoRecupera(Mago m) {
-                vPrincipal.getPanelMain().getPanelCombate().marcarRecuperado(m);
+                vPrincipal.getPanelMain().getPanelCombate().marcarRecuperado(m.getNombre());
             }
 
             @Override
             public void onFinDuelo(ResultadoDuelo r) {
-                SwingUtilities.invokeLater(() -> mostrarResultadoDuelo(r));
+                SwingUtilities.invokeLater(() -> {
+                    // Convertir ResultadoDuelo del modelo a InfoResultadoDueloVista
+                    InfoResultadoDueloVista infoResultado = adaptarResultado(r);
+                    mostrarResultadoDuelo(infoResultado);
+                });
             }
         };
 
-        // ✅ Ahora lo delegamos totalmente a ControlLogica
+        // Ejecutar duelo con el observador
         cLogica.ejecutarSiguienteDueloTorneoConObservador(obs);
     }
 
-    private void mostrarResultadoDuelo(ResultadoDuelo r) {
+    private void mostrarResultadoDuelo(InfoResultadoDueloVista r) {
         vPrincipal.getPanelMain().getPanelCombate().mostrarResultado(r);
 
         if (cLogica.puedeIniciarDuelo()) {
@@ -204,13 +219,93 @@ public class ControlInterfaz implements ActionListener {
         }
     }
 
-    public void mostrarResultado(ResultadoDuelo r) {
-        if (r == null) return;
-        String msg = "🏆 GANADOR: " + r.getGanador().getNombre()
-                + "\nCasa: " + r.getGanador().getCasa()
-                + "\n\nPerdedor: " + r.getPerdedor().getNombre()
-                + "\nPuntos: " + r.getPuntosGanador() + " - " + r.getPuntosPerdedor();
+    /**
+     * Notifica el resultado de un duelo a la vista.
+     * Convierte el ResultadoDuelo del modelo a InfoResultadoDueloVista.
+     * 
+     * @param resultado resultado del duelo desde el modelo
+     */
+    public void notificarResultadoDuelo(ResultadoDuelo resultado) {
+        if (resultado == null) return;
+        
+        InfoResultadoDueloVista infoResultado = adaptarResultado(resultado);
+        
+        String msg = "🏆 GANADOR: " + infoResultado.getGanador().getNombre()
+                + "\nCasa: " + infoResultado.getGanador().getCasa()
+                + "\n\nPerdedor: " + infoResultado.getPerdedor().getNombre()
+                + "\nPuntos: " + infoResultado.getPuntosGanador() 
+                + " - " + infoResultado.getPuntosPerdedor();
+        
         JOptionPane.showMessageDialog(vPrincipal, msg, "Resultado del Duelo",
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // ========== MÉTODOS ADAPTADORES (Modelo -> Vista) ==========
+    
+    /**
+     * Adapta un Mago del modelo a InfoMagoVista para la vista.
+     * Este método actúa como puente entre capas.
+     */
+    private InfoMagoVista adaptarMago(Mago mago) {
+        return new InfoMagoVista() {
+            @Override
+            public String getNombre() {
+                return mago.getNombre();
+            }
+
+            @Override
+            public String getCasa() {
+                return mago.getCasa();
+            }
+        };
+    }
+    
+    /**
+     * Adapta un Hechizo del modelo a InfoHechizoVista para la vista.
+     */
+    private InfoHechizoVista adaptarHechizo(Hechizo hechizo) {
+        return new InfoHechizoVista() {
+            @Override
+            public String getNombre() {
+                return hechizo.getNombre();
+            }
+
+            @Override
+            public int getPuntos() {
+                return hechizo.getPuntos();
+            }
+        };
+    }
+    
+    /**
+     * Adapta un ResultadoDuelo del modelo a InfoResultadoDueloVista para la vista.
+     */
+    private InfoResultadoDueloVista adaptarResultado(ResultadoDuelo resultado) {
+        return new InfoResultadoDueloVista() {
+            @Override
+            public InfoMagoVista getGanador() {
+                return adaptarMago(resultado.getGanador());
+            }
+
+            @Override
+            public InfoMagoVista getPerdedor() {
+                return adaptarMago(resultado.getPerdedor());
+            }
+
+            @Override
+            public int getPuntosGanador() {
+                return resultado.getPuntosGanador();
+            }
+
+            @Override
+            public int getPuntosPerdedor() {
+                return resultado.getPuntosPerdedor();
+            }
+
+            @Override
+            public int getHechizosLanzadosGanador() {
+                return resultado.getHechizosLanzadosGanador();
+            }
+        };
     }
 }
