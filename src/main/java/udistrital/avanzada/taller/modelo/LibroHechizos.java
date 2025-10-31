@@ -16,7 +16,7 @@ import java.util.List;
  * </p>
  * 
  * @author Paula Martínez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-26
  */
 public class LibroHechizos {

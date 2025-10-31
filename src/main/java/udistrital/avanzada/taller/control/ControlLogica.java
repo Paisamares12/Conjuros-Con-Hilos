@@ -1,60 +1,88 @@
 package udistrital.avanzada.taller.control;
 
 import java.io.IOException;
+import javax.swing.SwingWorker;
 import udistrital.avanzada.taller.modelo.*;
 import udistrital.avanzada.taller.modelo.persistencia.CargadorPropiedades;
 
 /**
  * Controlador principal de la lógica del programa <b>ConjurosConHilos</b>.
- * <p>
- * Coordina la comunicación entre la interfaz de usuario y el modelo, cargando
- * los datos iniciales (magos y hechizos) y gestionando la ejecución de los
- * duelos mágicos y torneos.
  *
- * Creada por Paula Martínez Modificada por Juan Ariza
+ * <p>
+ * Coordina la comunicación entre la vista y el modelo, garantizando que la interfaz
+ * gráfica no interactúe directamente con las clases de dominio. Administra la carga
+ * de datos (magos y hechizos), la inicialización del torneo y la ejecución de duelos
+ * (individuales o encadenados en torneo).
+ * </p>
+ *
+ * 
+ * Cumple el patrón MVC y los principios SOLID (especialmente SRP y DIP):
+ * <ul>
+ *   <li><b>SRP</b>: concentra la orquestación de casos de uso (cargar, iniciar duelos, exponer estado).</li>
+ *   <li><b>DIP</b>: la vista depende de este controlador y no del modelo concreto.</li>
+ * </ul>
+ * 
+ *
+ * <p>
+ * <b>Concurrencia:</b> los duelos se ejecutan en hilos de trabajo mediante
+ * {@link SwingWorker} y dentro de {@link CampoDeDuelo}, que usa sincronización
+ * con <i>wait/notify</i> para alternar turnos.
+ * </p>
+ *
+ * <p>
+ * Creada por Paula Martínez y modificada por Juan Ariza y Sebastián Bravo.
  * </p>
  *
  * @author Paula Martínez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-29
  */
-
-//TODO: revisar que cumpla con el MVC y los SOLID *no sé si pueda tener modelo*
 public class ControlLogica {
 
-    private ControlInterfaz cInterfaz;
-    private CargadorPropiedades cargador;
+    /** Servicio de lectura de archivos de propiedades (.properties). */
+    private final CargadorPropiedades cargador;
+
+    /** Controlador de la capa de interfaz (vista). */
+    private final ControlInterfaz cInterfaz;
+
+    /** Repositorio en memoria de hechizos disponibles. */
     private LibroHechizos libro;
+
+    /** Repositorio en memoria de magos participantes. */
     private ListadoMagos listado;
+
+    /** Coordinador del flujo de enfrentamientos en modo torneo. */
     private GestorTorneo gestorTorneo;
 
     /**
-     * Constructor que inicializa la capa lógica del sistema.
+     * Constructor principal. Inicializa la capa lógica, repositorios y vincula la interfaz.
+     *
+     * <p>Se crean contenedores vacíos para libro y listado, y se instancia la vista
+     * asociando este controlador.</p>
      */
     public ControlLogica() {
-        this.cInterfaz = new ControlInterfaz(this);
         this.cargador = new CargadorPropiedades();
         this.libro = new LibroHechizos();
         this.listado = new ListadoMagos();
+        this.cInterfaz = new ControlInterfaz(this);
     }
 
+    // ============================================================
+    // ===============   CARGA DE DATOS   =========================
+    // ============================================================
+
     /**
-     * Carga los magos desde un archivo de propiedades.
+     * Carga el listado de magos desde un archivo de propiedades y, si los hechizos ya
+     * están cargados, inicializa el torneo.
      *
-     * @param rutaArchivo ruta del archivo de magos (null para usar
-     * JFileChooser)
-     * @return true si la carga fue exitosa
+     * @param rutaArchivo ruta absoluta del archivo de magos; si es {@code null},
+     *                    el usuario seleccionará el archivo mediante un {@code JFileChooser}
+     * @return {@code true} si la carga fue exitosa; {@code false} en caso de error
      */
     public boolean cargarMagos(String rutaArchivo) {
         try {
             this.listado = cargador.cargarMagos(rutaArchivo);
-
-            // Si hay magos y hechizos cargados, inicializar el torneo
-            if (listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-                    && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
-                inicializarTorneo();
-            }
-
+            if (datosListos()) inicializarTorneo();
             return true;
         } catch (IOException e) {
             System.err.println("Error al cargar magos: " + e.getMessage());
@@ -63,22 +91,17 @@ public class ControlLogica {
     }
 
     /**
-     * Carga los hechizos desde un archivo de propiedades.
+     * Carga el libro de hechizos desde un archivo de propiedades y, si los magos ya
+     * están cargados, inicializa el torneo.
      *
-     * @param rutaArchivo ruta del archivo de hechizos (null para usar
-     * JFileChooser)
-     * @return true si la carga fue exitosa
+     * @param rutaArchivo ruta absoluta del archivo de hechizos; si es {@code null},
+     *                    el usuario seleccionará el archivo mediante un {@code JFileChooser}
+     * @return {@code true} si la carga fue exitosa; {@code false} en caso de error
      */
     public boolean cargarHechizos(String rutaArchivo) {
         try {
             this.libro = cargador.cargarHechizos(rutaArchivo);
-
-            // Si hay magos y hechizos cargados, inicializar el torneo
-            if (listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-                    && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty()) {
-                inicializarTorneo();
-            }
-
+            if (datosListos()) inicializarTorneo();
             return true;
         } catch (IOException e) {
             System.err.println("Error al cargar hechizos: " + e.getMessage());
@@ -87,190 +110,135 @@ public class ControlLogica {
     }
 
     /**
-     * Inicializa el gestor de torneo con los magos y hechizos cargados.
+     * Inicializa el gestor de torneo con los repositorios cargados.
+     *
+     * <p>Precondición: {@link #listado} y {@link #libro} no deben ser {@code null} y
+     * deben contener datos válidos.</p>
      */
     private void inicializarTorneo() {
-        if (listado != null && libro != null) {
+        if (listado != null && libro != null)
             gestorTorneo = new GestorTorneo(listado, libro);
-        }
+    }
+
+    // ============================================================
+    // ===============   EJECUCIÓN DE DUELOS   ====================
+    // ============================================================
+
+    /**
+     * Ejecuta un duelo simple (fuera del esquema de torneo) y notifica el resultado
+     * a la vista.
+     *
+     * <p>El duelo es bloqueante en este hilo, pero su lógica interna usa hilos para
+     * alternar turnos dentro de {@link CampoDeDuelo}.</p>
+     *
+     * @param m1 primer mago participante
+     * @param m2 segundo mago participante
+     * @throws IllegalArgumentException si alguno de los magos es {@code null}
+     */
+    public void ejecutarDueloSimple(Mago m1, Mago m2) {
+        if (m1 == null || m2 == null) throw new IllegalArgumentException("Magos inválidos");
+        CampoDeDuelo duelo = new CampoDeDuelo(m1, m2, libro);
+        ResultadoDuelo resultado = duelo.iniciar();
+        cInterfaz.mostrarResultado(resultado);
     }
 
     /**
-     * Verifica si hay datos suficientes cargados para iniciar un duelo.
+     * Inicia el siguiente duelo del torneo en un hilo de trabajo, notificando
+     * los eventos a través del observador recibido.
      *
-     * @return true si hay al menos 2 magos y hechizos cargados
+     * <p>
+     * El método no bloquea el hilo de la EDT (Event Dispatch Thread); utiliza un
+     * {@link SwingWorker} para delegar la ejecución y dejar la UI receptiva.
+     * </p>
+     *
+     * @param observador observador de eventos del duelo (inicio, lanzamientos, aturdimiento, fin)
+     * @throws IllegalStateException si el torneo no ha sido inicializado o si no hay duelos disponibles
+     */
+    public void ejecutarSiguienteDueloTorneoConObservador(CampoDeDuelo.ObservadorDuelo observador) {
+        if (gestorTorneo == null)
+            throw new IllegalStateException("No hay torneo inicializado");
+        if (!gestorTorneo.hayDueloDisponible())
+            throw new IllegalStateException("No hay más duelos disponibles");
+
+        SwingWorker<ResultadoDuelo, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ResultadoDuelo doInBackground() {
+                return gestorTorneo.ejecutarSiguienteDueloConObservador(observador);
+            }
+            @Override
+            protected void done() {
+                // El observador actualiza la UI; no se requiere lógica adicional aquí.
+            }
+        };
+        worker.execute();
+    }
+
+    // ============================================================
+    // ===============   MÉTODOS DE ESTADO   ======================
+    // ============================================================
+
+    /**
+     * Indica si existen datos suficientes para poder iniciar un torneo/duelo:
+     * al menos 1 mago cargado y al menos 1 hechizo cargado.
+     *
+     * @return {@code true} si hay magos y hechizos cargados; {@code false} en caso contrario
+     */
+    public boolean datosListos() {
+        return listado != null && !listado.getMagos().isEmpty()
+                && libro != null && !libro.getHechizos().isEmpty();
+    }
+
+    /**
+     * Verifica si es posible iniciar o continuar un duelo de torneo con los datos
+     * y estado actual del gestor de torneo.
+     *
+     * @return {@code true} si existe un torneo inicializado y hay duelos disponibles;
+     *         {@code false} en caso contrario
      */
     public boolean puedeIniciarDuelo() {
         return gestorTorneo != null && gestorTorneo.hayDueloDisponible();
     }
 
     /**
-     * Inicia un duelo entre dos magos específicos (modo individual).
+     * Reinicia el torneo con los repositorios actualmente cargados.
      *
-     * @param mago1 primer mago participante
-     * @param mago2 segundo mago participante
-     */
-    public void iniciarDuelo(Mago mago1, Mago mago2) {
-        if (mago1 == null || mago2 == null) {
-            System.err.println("Error: magos no válidos para el duelo.");
-            return;
-        }
-
-        CampoDeDuelo duelo = new CampoDeDuelo(mago1, mago2, libro);
-        ResultadoDuelo resultado = duelo.iniciar();
-
-        cInterfaz.mostrarResultado(resultado);
-    }
-
-    /**
-     * Inicia un duelo con observador para actualización de UI en tiempo real.
-     *
-     * @param mago1 primer mago participante
-     * @param mago2 segundo mago participante
-     * @param observador observador del duelo
-     * @return resultado del duelo
-     */
-    public ResultadoDuelo iniciarDueloConObservador(Mago mago1, Mago mago2,
-            CampoDeDuelo.ObservadorDuelo observador) {
-        if (mago1 == null || mago2 == null) {
-            throw new IllegalArgumentException("Los magos no pueden ser nulos");
-        }
-
-        CampoDeDuelo duelo = new CampoDeDuelo(mago1, mago2, libro);
-        duelo.setObservador(observador);
-        return duelo.iniciar();
-    }
-
-    /**
-     * Inicia el siguiente duelo del torneo.
-     *
-     * @return resultado del duelo, o null si no hay duelos disponibles
-     */
-    public ResultadoDuelo iniciarSiguienteDueloTorneo() {
-        if (gestorTorneo == null) {
-            System.err.println("Error: no hay torneo inicializado.");
-            return null;
-        }
-
-        if (!gestorTorneo.hayDueloDisponible()) {
-            System.err.println("No hay más duelos disponibles en el torneo.");
-            return null;
-        }
-
-        return gestorTorneo.ejecutarSiguienteDuelo();
-    }
-
-    /**
-     * Inicia el siguiente duelo del torneo con observador.
-     *
-     * @param observador observador del duelo
-     * @return resultado del duelo, o null si no hay duelos disponibles
-     */
-    public ResultadoDuelo iniciarSiguienteDueloTorneoConObservador(
-            CampoDeDuelo.ObservadorDuelo observador) {
-
-        if (gestorTorneo == null) {
-            throw new IllegalStateException("No hay torneo inicializado");
-        }
-
-        if (!gestorTorneo.hayDueloDisponible()) {
-            throw new IllegalStateException("No hay más duelos disponibles");
-        }
-
-        return gestorTorneo.ejecutarSiguienteDueloConObservador(observador);
-    }
-
-    /**
-     * Obtiene los magos del siguiente duelo sin ejecutarlo.
-     *
-     * @return array con los dos magos que participarán
-     */
-    public Mago[] obtenerSiguienteDuelo() {
-        if (gestorTorneo == null || !gestorTorneo.hayDueloDisponible()) {
-            return null;
-        }
-        return gestorTorneo.obtenerSiguienteDuelo();
-    }
-
-    /**
-     * Reinicia el torneo con los magos actuales.
+     * <p>No afecta a los datos de magos ni hechizos; solo recrea el flujo del torneo.</p>
      */
     public void reiniciarTorneo() {
-        if (listado != null && libro != null) {
+        if (listado != null && libro != null)
             gestorTorneo = new GestorTorneo(listado, libro);
-        }
     }
 
-    // ========== GETTERS ==========
+    // ============================================================
+    // ===============   GETTERS DE INFORMACIÓN ===================
+    // ============================================================
+
     /**
-     * Obtiene el listado actual de magos registrados en el sistema.
+     * Devuelve el campeón actual según las estadísticas del torneo.
      *
-     * <p>
-     * Este listado contiene todos los participantes disponibles para los duelos
-     * o torneos. Es cargado desde un archivo de propiedades mediante el
-     * {@link CargadorPropiedades}.
-     * </p>
-     *
-     * @return instancia de {@link ListadoMagos} con los magos actualmente
-     * cargados
+     * @return el {@link Mago} que ostenta el título actualmente, o {@code null} si no hay torneo
      */
-    public ListadoMagos getListadoMagos() {
-        return listado;
+    public Mago getCampeonActual() {
+        if (gestorTorneo == null) return null;
+        return gestorTorneo.obtenerEstadisticas().getCampeonActual();
     }
 
     /**
-     * Devuelve el libro de hechizos actualmente cargado en el sistema.
+     * Devuelve la cantidad de duelos realizados hasta el momento según las estadísticas del torneo.
      *
-     * <p>
-     * Este libro contiene todos los hechizos disponibles que los magos pueden
-     * usar durante los duelos mágicos. Es cargado desde un archivo de
-     * propiedades mediante el {@link CargadorPropiedades}.
-     * </p>
-     *
-     * @return objeto {@link LibroHechizos} con la lista de hechizos disponibles
+     * @return número entero de duelos realizados; 0 si no hay torneo
      */
-    public LibroHechizos getLibroHechizos() {
-        return libro;
+    public int getDuelosRealizados() {
+        if (gestorTorneo == null) return 0;
+        return gestorTorneo.obtenerEstadisticas().getDuelosRealizados();
     }
 
     /**
-     * Obtiene el gestor de torneo actual.
+     * Devuelve el gestor de torneo en uso (si ha sido inicializado).
      *
-     * <p>
-     * El {@link GestorTorneo} administra el flujo de duelos, determina los
-     * enfrentamientos, lleva el historial de resultados y controla el avance de
-     * las rondas del torneo.
-     * </p>
-     *
-     * @return instancia activa de {@link GestorTorneo}, o {@code null} si el
-     * torneo no se ha inicializado
+     * @return instancia de {@link GestorTorneo}, o {@code null} si aún no se ha creado
      */
     public GestorTorneo getGestorTorneo() {
         return gestorTorneo;
-    }
-
-    /**
-     * Devuelve el controlador encargado de gestionar la interfaz gráfica.
-     *
-     * <p>
-     * El {@link ControlInterfaz} coordina la interacción con el usuario, los
-     * paneles gráficos y la actualización visual de los duelos y torneos.
-     * </p>
-     *
-     * @return instancia de {@link ControlInterfaz} utilizada por esta capa
-     * lógica
-     */
-    public ControlInterfaz getControlInterfaz() {
-        return cInterfaz;
-    }
-
-    /**
-     * Verifica si los datos necesarios están cargados.
-     *
-     * @return true si hay magos y hechizos cargados
-     */
-    public boolean datosListos() {
-        return listado != null && listado.getMagos() != null && !listado.getMagos().isEmpty()
-                && libro != null && libro.getHechizos() != null && !libro.getHechizos().isEmpty();
     }
 }

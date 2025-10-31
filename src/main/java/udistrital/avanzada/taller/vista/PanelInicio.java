@@ -24,7 +24,7 @@ import javax.swing.JButton;
  * </p>
  *
  * @author Paula Martinez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-25
  */
 public class PanelInicio extends PanelBase {

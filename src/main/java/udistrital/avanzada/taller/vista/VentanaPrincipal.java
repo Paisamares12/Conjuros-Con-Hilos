@@ -25,7 +25,7 @@ import udistrital.avanzada.taller.control.ControlInterfaz;
  * </p>
  *
  * @author Paula Martinez
- * @version 5.0
+ * @version 6.0
  * @since 2025-10-25
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
